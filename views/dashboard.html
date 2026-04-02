@@ -1,0 +1,125 @@
+{{define "title"}}My Exhibitors{{end}}
+
+{{define "body"}}
+<div class="min-h-screen bg-base-200">
+
+    <div class="navbar bg-base-100 shadow-sm px-4">
+        <div class="flex-1">
+            <span class="text-xl font-bold text-primary">Home &amp; Country Show</span>
+        </div>
+        <div class="flex-none gap-2">
+            <span class="text-sm text-base-content/60 hidden sm:block">{{.UserEmail}}</span>
+            <form hx-post="/logout" hx-target="body" hx-swap="outerHTML">
+                <button class="btn btn-ghost btn-sm">Logout</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto p-4 mt-6 flex flex-col gap-6">
+        {{if .ShowDate}}
+            <div class="flex items-center justify-between bg-base-100 rounded-xl px-5 py-3 shadow-sm"
+                x-data="countdown('{{.ShowDateISO}}')"
+                x-init="start()">
+                <div class="flex items-center gap-3">
+                    <div class="text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs text-base-content/50 uppercase tracking-wide leading-none mb-0.5">Show Date</p>
+                        <p class="font-semibold text-sm">{{.ShowDate}}</p>
+                    </div>
+                </div>
+
+                <div x-show="!passed" class="flex items-center gap-1.5 text-right">
+                    <div class="flex items-baseline gap-0.5">
+                        <span class="font-mono font-bold text-lg tabular-nums"
+                            x-text="String(days).padStart(2,'0')">00</span>
+                        <span class="text-xs text-base-content/40">d</span>
+                    </div>
+                    <span class="text-base-content/30 font-bold">:</span>
+                    <div class="flex items-baseline gap-0.5">
+                        <span class="font-mono font-bold text-lg tabular-nums"
+                            x-text="String(hours).padStart(2,'0')">00</span>
+                        <span class="text-xs text-base-content/40">h</span>
+                    </div>
+                    <span class="text-base-content/30 font-bold">:</span>
+                    <div class="flex items-baseline gap-0.5">
+                        <span class="font-mono font-bold text-lg tabular-nums"
+                            x-text="String(minutes).padStart(2,'0')">00</span>
+                        <span class="text-xs text-base-content/40">m</span>
+                    </div>
+                    <span class="text-base-content/30 font-bold">:</span>
+                    <div class="flex items-baseline gap-0.5">
+                        <span class="font-mono font-bold text-lg tabular-nums"
+                            x-text="String(seconds).padStart(2,'0')">00</span>
+                        <span class="text-xs text-base-content/40">s</span>
+                    </div>
+                </div>
+
+                <div x-show="passed" x-cloak>
+                    <span class="badge badge-warning badge-sm font-medium">Show day!</span>
+                </div>
+            </div>
+            {{end}}
+
+        <!-- Header -->
+        <div class="mt-6">
+            <h2 class="text-2xl font-bold">My Children</h2>
+            <p class="text-base-content/60 text-sm mt-1">
+                Add the children you'd like to register for the show
+            </p>
+        </div>
+
+        <!-- Exhibitor list -->
+        <div id="exhibitor-list"
+             hx-get="/partials/exhibitors"
+             hx-trigger="load"
+             hx-target="this"
+             hx-swap="outerHTML" class="mt-6">
+            <div class="flex justify-center py-12">
+                <span class="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function countdown(targetISO) {
+    return {
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+        passed: false,
+        timer: null,
+        start() {
+            this.tick(targetISO)
+            this.timer = setInterval(() => this.tick(targetISO), 1000)
+        },
+        tick(targetISO) {
+            const target = new Date(targetISO).getTime()
+            const now = Date.now()
+            const diff = target - now
+
+            if (diff <= 0) {
+                this.passed = true
+                this.days = this.hours = this.minutes = this.seconds = 0
+                clearInterval(this.timer)
+                return
+            }
+
+            this.days    = Math.floor(diff / (1000 * 60 * 60 * 24))
+            this.hours   = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+            this.minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+            this.seconds = Math.floor((diff % (1000 * 60)) / 1000)
+        }
+    }
+}
+</script>
+{{end}}

@@ -1,0 +1,97 @@
+views/login.html:
+html{{define "title"}}Login{{end}}
+
+{{define "body"}}
+<div class="min-h-screen bg-base-200 flex items-center justify-center p-4">
+    <div class="w-full max-w-sm">
+
+        <!-- Logo / App name -->
+        <div class="text-center mb-8">
+            <img src="/static/mhe_logo_300x300.png" alt="Home & Country Show Logo" class="w-24 h-24 mx-auto mb-4">
+            <h1 class="text-4xl font-bold text-primary">Home &amp; Country Show</h1>
+            <p class="text-base-content/60 mt-1">Sign in to your account</p>
+        </div>
+
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body gap-4">
+
+                {{if .Error}}
+                <div role="alert" class="alert alert-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>{{.Error}}</span>
+                </div>
+                {{end}}
+
+                <form hx-post="/login"
+                      hx-target="body"
+                      hx-swap="outerHTML"
+                      hx-indicator="#login-spinner"
+                      class="flex flex-col gap-4"
+                      x-data="{ submitting: false }"
+                      @htmx:before-request="submitting = true"
+                      @htmx:after-request="submitting = false">
+
+                    <!-- Email -->
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Email</legend>
+                        <label class="input validator w-full">
+                            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                            </svg>
+                            <input type="email"
+                                   name="email"
+                                   placeholder="you@example.com"
+                                   required
+                                   autocomplete="email" />
+                        </label>
+                        <div class="validator-hint hidden">Enter a valid email address</div>
+                    </fieldset>
+
+                    <!-- Password -->
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Password</legend>
+                        <label class="input validator w-full">
+                            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path>
+                                <circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle>
+                            </svg>
+                            <input type="password"
+                                   name="password"
+                                   placeholder="••••••••"
+                                   required
+                                   minlength="8"
+                                   autocomplete="current-password" />
+                        </label>
+                        <div class="validator-hint hidden">Must be at least 8 characters</div>
+                    </fieldset>
+
+                    <!-- Submit -->
+                    <button type="submit"
+                            class="btn btn-primary w-full mt-2"
+                            :disabled="submitting"
+                            :class="{ 'opacity-75': submitting }">
+                        <span id="login-spinner"
+                              class="loading loading-spinner loading-sm htmx-indicator"></span>
+                        <span x-text="submitting ? 'Signing in...' : 'Sign in'">Sign in</span>
+                    </button>
+
+                </form>
+
+                <div class="divider text-base-content/40 text-xs">or</div>
+
+                <p class="text-center text-sm text-base-content/60">
+                    Don't have an account?
+                    <a href="/register" class="link link-primary font-medium">Register</a>
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{{end}}

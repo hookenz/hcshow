@@ -1,0 +1,27 @@
+<div id="category-table">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Short Code</th>
+                <th>Section</th>
+                <th>Entry Form</th>
+                <th>Active</th>
+                <th>Pre-judged</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Records}}
+            {{$section := .ExpandedOne "section"}}
+            <tr>
+                <td>{{.GetString "name"}}</td>
+                <td>{{.GetString "short_code"}}</td>
+                <td>{{if $section}}{{$section.GetString "name"}}{{else}}—{{end}}</td>
+                <td>{{.GetString "entry_form"}}</td>
+                <td>{{if .GetBool "active"}}✓{{else}}—{{end}}</td>
+                <td>{{if .GetBool "pre_judged"}}✓{{else}}—{{end}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>

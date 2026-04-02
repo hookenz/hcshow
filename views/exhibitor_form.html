@@ -1,0 +1,150 @@
+{{define "title"}}
+{{if .Exhibitor}}Edit Child{{else}}Add Child{{end}}
+{{end}}
+
+{{define "body"}}
+<div class="min-h-screen bg-base-200">
+
+    <div class="navbar bg-base-100 shadow-sm px-4">
+        <div class="flex-1">
+            <a href="/" class="btn btn-ghost btn-sm gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+        </div>
+        <div class="flex-none">
+            <span class="text-xl font-bold text-primary">MyApp</span>
+        </div>
+        <div class="flex-none w-24"></div>
+    </div>
+
+    <div class="max-w-lg mx-auto p-4 mt-6">
+
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body gap-4">
+
+                <h2 class="card-title text-xl">
+                    {{if .Exhibitor}}Edit Child{{else}}Add a Child{{end}}
+                </h2>
+        
+                {{if .Error}}
+                <div role="alert" class="alert alert-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>{{.Error}}</span>
+                </div>
+                {{end}}
+
+                {{if .Exhibitor}}
+                <form method="POST" action="/exhibitors/{{.Exhibitor.Id}}/edit"
+                      class="flex flex-col gap-4"
+                      x-data="{ submitting: false }"
+                      @submit="submitting = true">
+                {{else}}
+                <form method="POST" action="/exhibitors/new"
+                      class="flex flex-col gap-4"
+                      x-data="{ submitting: false }"
+                      @submit="submitting = true">
+                {{end}}
+
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">First Name</legend>
+                        <label class="input validator w-full">
+                            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <input type="text"
+                                   name="first_name"
+                                   placeholder="First name"
+                                   required
+                                   value="{{if .Exhibitor}}{{.Exhibitor.GetString "first_name"}}{{end}}"
+                                   autocomplete="given-name" />
+                        </label>
+                        <div class="validator-hint hidden">First name is required</div>
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Last Name</legend>
+                        <label class="input validator w-full">
+                            <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <input type="text"
+                                   name="last_name"
+                                   placeholder="Last name"
+                                   required
+                                   value="{{if .Exhibitor}}{{.Exhibitor.GetString "last_name"}}{{end}}"
+                                   autocomplete="family-name" />
+                        </label>
+                        <div class="validator-hint hidden">Last name is required</div>
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="fieldset-legend">Date of Birth</legend>
+                        <input type="date"
+                               name="birth_date"
+                               class="input validator w-full"
+                               required
+                               value="{{.BirthDate}}" />
+                        <div class="validator-hint hidden">Date of birth is required</div>
+                    </fieldset>
+
+                    <div class="flex gap-3 mt-2">
+                        <a href="/" class="btn btn-ghost flex-1">Cancel</a>
+                        <button type="submit"
+                                class="btn btn-primary flex-1"
+                                :disabled="submitting"
+                                :class="{ 'opacity-75': submitting }">
+                            <span class="loading loading-spinner loading-sm"
+                                  x-show="submitting" x-cloak></span>
+                            {{if .Exhibitor}}
+                            <span x-text="submitting ? 'Saving...' : 'Save Changes'">Save Changes</span>
+                            {{else}}
+                            <span x-text="submitting ? 'Saving...' : 'Add Child'">Add Child</span>
+                            {{end}}
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+        {{if .Exhibitor}}
+        <div class="card bg-base-100 shadow-xl mt-4">
+            <div class="card-body">
+                <h3 class="font-semibold text-error">Remove Child</h3>
+                <p class="text-sm text-base-content/60">
+                    This will permanently remove
+                    <strong>{{.Exhibitor.GetString "first_name"}} {{.Exhibitor.GetString "last_name"}}</strong>
+                    from your registrations.
+                </p>
+                <form method="POST" action="/exhibitors/{{.Exhibitor.Id}}/delete"
+                      x-data="{ confirming: false }"
+                      class="mt-2">
+                    <button type="button"
+                            class="btn btn-outline btn-error btn-sm"
+                            x-show="!confirming"
+                            @click="confirming = true">
+                        Remove
+                    </button>
+                    <div x-show="confirming" x-cloak class="flex items-center gap-3">
+                        <span class="text-sm">Are you sure?</span>
+                        <button type="submit" class="btn btn-error btn-sm">Yes, remove</button>
+                        <button type="button" class="btn btn-ghost btn-sm" @click="confirming = false">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {{end}}
+
+    </div>
+</div>
+{{end}}

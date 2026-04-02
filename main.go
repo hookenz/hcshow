@@ -7,21 +7,43 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/plugins/jsvm"
+	"github.com/pocketbase/pocketbase/tools/template"
+
+	"hcshow/handlers"
+	"hcshow/middleware"
 )
 
 func main() {
 	app := pocketbase.New()
 
-	// Register the JSVM plugin
-	jsvm.MustRegister(app, jsvm.Config{
-		// You can add configurations here if needed,
-		// such as custom Go bindings or an OnInit function.
-	})
-
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
-		// serves static files from the provided public dir (if exists)
-		se.Router.GET("/*", apis.Static(os.DirFS("./pb_public"), false))
+		registry := template.NewRegistry()
+
+		// Public routes
+		se.Router.GET("/login", handlers.ShowLogin(registry))
+		se.Router.POST("/login", handlers.HandleLogin(app, registry))
+		se.Router.GET("/register", handlers.ShowRegister(registry))
+		se.Router.POST("/register", handlers.HandleRegister(app, registry))
+
+		// Protected routes
+		protected := se.Router.Group("")
+		protected.BindFunc(middleware.RequireAuth(app))
+
+		protected.GET("/", handlers.Dashboard(app, registry))
+		protected.POST("/logout", handlers.Logout())
+
+		protected.GET("/partials/exhibitors", handlers.ListExhibitors(app, registry))
+		protected.GET("/partials/entries/{id}", handlers.ListEntries(app, registry))
+		protected.GET("/exhibitors/new", handlers.NewExhibitorForm(registry))
+		protected.POST("/exhibitors/new", handlers.CreateExhibitor(app, registry))
+		protected.GET("/exhibitors/{id}/edit", handlers.EditExhibitorForm(app, registry))
+		protected.POST("/exhibitors/{id}/edit", handlers.UpdateExhibitor(app, registry))
+		protected.DELETE("/exhibitors/{id}", handlers.DeleteExhibitor(app, registry))
+		protected.GET("/exhibitors/{id}/entries", handlers.ShowEntries(app, registry))
+		protected.POST("/exhibitors/{id}/entries", handlers.CreateEntry(app, registry))
+		protected.DELETE("/exhibitors/{id}/entries/{entryid}", handlers.DeleteEntry(app, registry))
+
+		se.Router.GET("/static/{path...}", apis.Static(os.DirFS("./pb_public"), false))
 
 		return se.Next()
 	})

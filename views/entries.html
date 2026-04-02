@@ -1,0 +1,121 @@
+{{define "title"}}Entries — {{.FirstName}} {{.LastName}}{{end}}
+
+{{define "body"}}
+<div class="min-h-screen bg-base-200">
+
+    <div class="navbar bg-base-100 shadow-sm px-4">
+        <div class="flex-1">
+            <a href="/" class="btn btn-ghost btn-sm gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </a>
+        </div>
+        <div class="flex-none">
+            <span class="text-xl font-bold text-primary">MyApp</span>
+        </div>
+        <div class="flex-none w-24"></div>
+    </div>
+
+    <div class="max-w-3xl mx-auto p-4 mt-6 flex flex-col gap-6">
+
+        <!-- Child header -->
+        <div class="flex items-center gap-4">
+            <div>
+                <h2 class="text-2xl font-bold">{{.FirstName}} {{.LastName}}</h2>
+                {{if not .NoAgeGroup}}
+                <p class="text-base-content/60 text-sm mt-0.5">
+                    Age {{.AgeOnShowDay}} on show day
+                    <span class="badge badge-neutral badge-sm ml-1">{{.AgeGroupName}}</span>
+                </p>
+                {{end}}
+            </div>
+        </div>
+
+        {{if .Error}}
+        <div role="alert" class="alert alert-error">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>{{.Error}}</span>
+        </div>
+        {{end}}
+
+        {{if .NoAgeGroup}}
+        <div role="alert" class="alert alert-warning">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span>No eligible age group found for this child. Please check their date of birth.</span>
+        </div>
+        {{else}}
+
+        <!-- Category picker -->
+        <div class="card bg-base-100 shadow-sm">
+            <div class="card-body">
+                <h3 class="font-semibold text-base mb-3">Add an Entry</h3>
+                <form hx-post="/exhibitors/{{.ExhibitorID}}/entries"
+                      hx-target="#entries-list"
+                      hx-swap="outerHTML"
+                      x-data="{ selected: '' }"
+                      class="flex flex-col sm:flex-row gap-3">
+
+                    <input type="hidden" name="age_group_id" value="{{.AgeGroupID}}">
+
+                    <div class="flex-1">
+                        <select name="category_id"
+                                class="select select-bordered w-full"
+                                x-model="selected"
+                                required>
+                            <option value="" disabled selected>Select a category...</option>
+                            {{$currentSection := ""}}
+                            {{range .Categories}}
+                                {{if ne .SectionName $currentSection}}
+                                    {{if ne $currentSection ""}}</optgroup>{{end}}
+                                    <optgroup label="{{.SectionName}}">
+                                    {{$currentSection = .SectionName}}
+                                {{end}}
+                                <option value="{{.CategoryID}}"
+                                        {{if .AlreadyEntered}}disabled{{end}}>
+                                    {{.CategoryName}}
+                                    {{if .ShortCode}}({{.ShortCode}}){{end}}
+                                    {{if .AlreadyEntered}}✓{{end}}
+                                </option>
+                            {{end}}
+                            {{if ne $currentSection ""}}</optgroup>{{end}}
+                        </select>
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-primary"
+                            :disabled="!selected">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary-content" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Entry
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Entries list -->
+        <div id="entries-list"
+             hx-get="/partials/entries/{{.ExhibitorID}}"
+             hx-trigger="load"
+             hx-target="this"
+             hx-swap="outerHTML">
+            <div class="flex justify-center py-8">
+                <span class="loading loading-spinner loading-md text-primary"></span>
+            </div>
+        </div>
+
+        {{end}}
+    </div>
+</div>
+{{end}}
