@@ -10,11 +10,14 @@ import (
 	"github.com/pocketbase/pocketbase/tools/template"
 
 	"hcshow/handlers"
+	"hcshow/internal/security"
 	"hcshow/middleware"
 )
 
 func main() {
 	app := pocketbase.New()
+
+	altchakey := security.GetAltchaKey()
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		registry := template.NewRegistry()
@@ -23,7 +26,8 @@ func main() {
 		se.Router.GET("/login", handlers.ShowLogin(registry))
 		se.Router.POST("/login", handlers.HandleLogin(app, registry))
 		se.Router.GET("/register", handlers.ShowRegister(registry))
-		se.Router.POST("/register", handlers.HandleRegister(app, registry))
+		se.Router.POST("/register", handlers.HandleRegister(app, registry, altchakey))
+		se.Router.GET("/api/altcha", handlers.AltchaChallenge(altchakey))
 
 		// Protected routes
 		protected := se.Router.Group("")

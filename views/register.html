@@ -112,6 +112,13 @@
                         </p>
                     </fieldset>
 
+                     <!-- ALTCHA widget -->
+                    <altcha-widget
+                        challengeurl="/api/altcha"
+                        x-ref="altcha"
+                        @solved.window="altchaReady = true">
+                    </altcha-widget>
+                    
                     <!-- Submit -->
                     <button type="submit"
                             class="btn btn-primary w-full mt-2"

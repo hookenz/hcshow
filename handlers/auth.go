@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/altcha-org/altcha-lib-go"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/tools/template"
@@ -75,18 +76,31 @@ func ShowRegister(registry *template.Registry) func(*core.RequestEvent) error {
 	}
 }
 
-func HandleRegister(app *pocketbase.PocketBase, registry *template.Registry) func(*core.RequestEvent) error {
+func HandleRegister(app *pocketbase.PocketBase, registry *template.Registry, hmacKey string) func(*core.RequestEvent) error {
 	return func(e *core.RequestEvent) error {
+
+		// --- Bind form data ---
 		data := struct {
 			Name            string `form:"name"`
 			Email           string `form:"email"`
 			Password        string `form:"password"`
 			PasswordConfirm string `form:"password_confirm"`
+			Altcha          string `form:"altcha"`
 		}{}
 		if err := e.BindBody(&data); err != nil {
 			return e.BadRequestError("Invalid form data", err)
 		}
 
+		// --- ALTCHA verification ---
+		if data.Altcha == "" {
+			return e.HTML(http.StatusUnprocessableEntity, "Altcha required")
+		}
+		ok, err := altcha.VerifySolution(data.Altcha, hmacKey, true)
+		if err != nil || !ok {
+			return e.HTML(http.StatusUnprocessableEntity, "Altcha verification failed")
+		}
+
+		// --- Helper to render form errors ---
 		renderError := func(msg string) error {
 			html, err := registry.LoadFiles(
 				"views/layout.html",
@@ -98,6 +112,7 @@ func HandleRegister(app *pocketbase.PocketBase, registry *template.Registry) fun
 			return e.HTML(http.StatusUnprocessableEntity, html)
 		}
 
+		// --- Form validation ---
 		if data.Password != data.PasswordConfirm {
 			return renderError("Passwords do not match")
 		}
@@ -110,6 +125,7 @@ func HandleRegister(app *pocketbase.PocketBase, registry *template.Registry) fun
 			return renderError("An account with that email already exists")
 		}
 
+		// --- Create record ---
 		collection, err := app.FindCollectionByNameOrId("users")
 		if err != nil {
 			return e.InternalServerError("Could not find users collection", err)
@@ -125,6 +141,7 @@ func HandleRegister(app *pocketbase.PocketBase, registry *template.Registry) fun
 			return renderError("Could not create account: " + err.Error())
 		}
 
+		// --- Create auth token ---
 		token, err := record.NewAuthToken()
 		if err != nil {
 			return e.InternalServerError("Could not create token", err)
@@ -142,6 +159,74 @@ func HandleRegister(app *pocketbase.PocketBase, registry *template.Registry) fun
 		return e.NoContent(http.StatusOK)
 	}
 }
+
+// func HandleRegister(app *pocketbase.PocketBase, registry *template.Registry) func(*core.RequestEvent) error {
+// 	return func(e *core.RequestEvent) error {
+// 		data := struct {
+// 			Name            string `form:"name"`
+// 			Email           string `form:"email"`
+// 			Password        string `form:"password"`
+// 			PasswordConfirm string `form:"password_confirm"`
+// 		}{}
+// 		if err := e.BindBody(&data); err != nil {
+// 			return e.BadRequestError("Invalid form data", err)
+// 		}
+
+// 		renderError := func(msg string) error {
+// 			html, err := registry.LoadFiles(
+// 				"views/layout.html",
+// 				"views/register.html",
+// 			).Render(map[string]any{"Error": msg})
+// 			if err != nil {
+// 				return e.InternalServerError("", err)
+// 			}
+// 			return e.HTML(http.StatusUnprocessableEntity, html)
+// 		}
+
+// 		if data.Password != data.PasswordConfirm {
+// 			return renderError("Passwords do not match")
+// 		}
+// 		if len(data.Password) < 8 {
+// 			return renderError("Password must be at least 8 characters")
+// 		}
+
+// 		existing, _ := app.FindAuthRecordByEmail("users", data.Email)
+// 		if existing != nil {
+// 			return renderError("An account with that email already exists")
+// 		}
+
+// 		collection, err := app.FindCollectionByNameOrId("users")
+// 		if err != nil {
+// 			return e.InternalServerError("Could not find users collection", err)
+// 		}
+
+// 		record := core.NewRecord(collection)
+// 		record.Set("name", data.Name)
+// 		record.Set("email", data.Email)
+// 		record.Set("password", data.Password)
+// 		record.Set("passwordConfirm", data.PasswordConfirm)
+
+// 		if err := app.Save(record); err != nil {
+// 			return renderError("Could not create account: " + err.Error())
+// 		}
+
+// 		token, err := record.NewAuthToken()
+// 		if err != nil {
+// 			return e.InternalServerError("Could not create token", err)
+// 		}
+
+// 		http.SetCookie(e.Response, &http.Cookie{
+// 			Name:     "pb_auth",
+// 			Value:    token,
+// 			HttpOnly: true,
+// 			Path:     "/",
+// 			SameSite: http.SameSiteLaxMode,
+// 		})
+
+// 		e.Response.Header().Set("HX-Redirect", "/")
+// 		return e.NoContent(http.StatusOK)
+// 	}
+// }
 
 func Dashboard(app *pocketbase.PocketBase, registry *template.Registry) func(*core.RequestEvent) error {
 	return func(e *core.RequestEvent) error {

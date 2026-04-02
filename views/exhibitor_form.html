@@ -126,7 +126,36 @@
                     <strong>{{.Exhibitor.GetString "first_name"}} {{.Exhibitor.GetString "last_name"}}</strong>
                     from your registrations.
                 </p>
-                <form method="POST" action="/exhibitors/{{.Exhibitor.Id}}/delete"
+                <form 
+                    hx-delete="/exhibitors/{{.Exhibitor.Id}}"
+                    hx-target="body"
+                    hx-swap="none"
+                    hx-on::after-request="if(event.detail.successful) window.location='/'"
+                    x-data="{ confirming: false }"
+                    class="mt-2"
+                >
+                    <button type="button"
+                            class="btn btn-outline btn-error btn-sm"
+                            x-show="!confirming"
+                            @click="confirming = true">
+                        Remove
+                    </button>
+
+                    <div x-show="confirming" x-cloak class="flex items-center gap-3">
+                        <span class="text-sm">Are you sure?</span>
+
+                        <button type="submit" class="btn btn-error btn-sm">
+                            Yes, remove
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-ghost btn-sm"
+                                @click="confirming = false">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+                <!-- <form method="POST" action="/exhibitors/{{.Exhibitor.Id}}/delete"
                       x-data="{ confirming: false }"
                       class="mt-2">
                     <button type="button"
@@ -140,7 +169,7 @@
                         <button type="submit" class="btn btn-error btn-sm">Yes, remove</button>
                         <button type="button" class="btn btn-ghost btn-sm" @click="confirming = false">Cancel</button>
                     </div>
-                </form>
+                </form> -->
             </div>
         </div>
         {{end}}

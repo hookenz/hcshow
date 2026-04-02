@@ -92,7 +92,7 @@ func CreateEntry(app *pocketbase.PocketBase, registry *template.Registry) func(*
 			return e.BadRequestError("Missing category or age group", nil)
 		}
 
-		collection, err := app.FindCollectionByNameOrId("exhibit")
+		collection, err := app.FindCollectionByNameOrId("exhibits")
 		if err != nil {
 			return e.InternalServerError("", err)
 		}
@@ -167,7 +167,7 @@ func DeleteEntry(app *pocketbase.PocketBase, registry *template.Registry) func(*
 			return e.ForbiddenError("", nil)
 		}
 
-		entry, err := app.FindRecordById("exhibit", e.Request.PathValue("entryid"))
+		entry, err := app.FindRecordById("exhibits", e.Request.PathValue("entryid"))
 		if err != nil {
 			return e.NotFoundError("", err)
 		}
@@ -286,7 +286,7 @@ func buildEntriesData(app *pocketbase.PocketBase, e *core.RequestEvent) (*Entrie
 
 	// Fetch existing entries for this exhibitor
 	existing, err := app.FindRecordsByFilter(
-		"exhibit",
+		"exhibits",
 		"exhibitor = {:ex}",
 		"", 500, 0,
 		dbx.Params{"ex": exhibitorID},
@@ -331,7 +331,7 @@ func buildEntriesData(app *pocketbase.PocketBase, e *core.RequestEvent) (*Entrie
 
 func fetchEntryRows(app *pocketbase.PocketBase, exhibitorID string) ([]EntryRow, error) {
 	entries, err := app.FindRecordsByFilter(
-		"exhibit",
+		"exhibits",
 		"exhibitor = {:ex}",
 		"category",
 		500, 0,

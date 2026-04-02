@@ -1914,17 +1914,11 @@
       height: var(--size);
     }
   }
-  .h-3\.5 {
-    height: calc(var(--spacing) * 3.5);
-  }
   .h-4 {
     height: calc(var(--spacing) * 4);
   }
   .h-5 {
     height: calc(var(--spacing) * 5);
-  }
-  .h-6 {
-    height: calc(var(--spacing) * 6);
   }
   .h-24 {
     height: calc(var(--spacing) * 24);
@@ -1950,17 +1944,11 @@
       width: calc(var(--size-selector, 0.25rem) * 5);
     }
   }
-  .w-3\.5 {
-    width: calc(var(--spacing) * 3.5);
-  }
   .w-4 {
     width: calc(var(--spacing) * 4);
   }
   .w-5 {
     width: calc(var(--spacing) * 5);
-  }
-  .w-6 {
-    width: calc(var(--spacing) * 6);
   }
   .w-16 {
     width: calc(var(--spacing) * 16);
@@ -2063,19 +2051,8 @@
   .overflow-x-auto {
     overflow-x: auto;
   }
-  .rounded-full {
-    border-radius: calc(infinity * 1px);
-  }
   .rounded-xl {
     border-radius: var(--radius-xl);
-  }
-  .border-2 {
-    border-style: var(--tw-border-style);
-    border-width: 2px;
-  }
-  .border-dashed {
-    --tw-border-style: dashed;
-    border-style: dashed;
   }
   .badge-ghost {
     @layer daisyui.l1.l2 {
@@ -2083,12 +2060,6 @@
       background-color: var(--color-base-200);
       color: var(--color-base-content);
       background-image: none;
-    }
-  }
-  .border-base-content\/20 {
-    border-color: var(--color-base-content);
-    @supports (color: color-mix(in lab, red, red)) {
-      border-color: color-mix(in oklab, var(--color-base-content) 20%, transparent);
     }
   }
   .table-zebra {
@@ -2429,13 +2400,6 @@
       }
     }
   }
-  .group-hover\/add\:border-primary {
-    &:is(:where(.group\/add):hover *) {
-      @media (hover: hover) {
-        border-color: var(--color-primary);
-      }
-    }
-  }
   .hover\:text-primary {
     &:hover {
       @media (hover: hover) {
@@ -2700,11 +2664,6 @@
     background-position-x: -115%;
   }
 }
-@property --tw-border-style {
-  syntax: "*";
-  inherits: false;
-  initial-value: solid;
-}
 @property --tw-leading {
   syntax: "*";
   inherits: false;
@@ -2858,7 +2817,6 @@
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
-      --tw-border-style: solid;
       --tw-leading: initial;
       --tw-font-weight: initial;
       --tw-tracking: initial;
