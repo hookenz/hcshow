@@ -1,71 +1,89 @@
 {{if or .Exhibitors (not .Exhibitors)}}
 <div id="exhibitor-list">
-    <div class="space-y-3">
+    <div class="space-y-2">
         {{range $idx, $exh := .Exhibitors}}
         <details class="collapse collapse-arrow bg-base-100 border border-base-200">
-            <!-- <input type="radio" name="exhibitor-accordion" {{if eq $idx 0}}checked{{end}} /> -->
-
             <!-- Header (Collapse Title) -->
-            <summary class="collapse-title px-4 py-3 flex items-center justify-between cursor-pointer">
-                <div class="flex-1 grid grid-cols-[2fr_1.3fr_0.8fr_1fr_1fr] gap-3 items-center text-sm">
-                    <div class="font-medium">{{$exh.FirstName}} {{$exh.LastName}}</div>
-                    <div class="text-xs text-base-content/60">
-                        {{$exh.BirthDate}}
+            <summary class="collapse-title px-4 py-3 cursor-pointer">
+                <div class="flex items-center justify-between w-full gap-4">
+                    <div class="grid grid-cols-[2fr_1.2fr_0.8fr_1fr_1.2fr] gap-3 items-center text-sm flex-1">
+                        <div class="font-medium">{{$exh.FirstName}} {{$exh.LastName}}</div>
+                        <div class="text-xs text-base-content/60">
+                            {{$exh.BirthDate}}
+                        </div>
+                        <div class="text-xs">
+                            <span class="badge badge-sm badge-ghost">{{$exh.Age}}y</span>
+                        </div>
+                        {{if $exh.AgeGroupName}}
+                        <div class="text-xs">
+                            <span class="badge badge-xs badge-primary">{{$exh.AgeGroupName}}</span>
+                        </div>
+                        {{else}}
+                        <div class="text-xs text-base-content/30">—</div>
+                        {{end}}
+                        <div class="text-xs text-base-content/70">
+                            <span class="text-primary font-semibold">{{$exh.EntryCount}}</span> {{if eq $exh.EntryCount 1}}entry{{else}}entries{{end}}
+                        </div>
                     </div>
-                    <div class="text-xs">
-                        <span class="badge badge-sm badge-ghost">{{$exh.Age}}y</span>
-                    </div>
-                    {{if $exh.AgeGroupName}}
-                    <div class="text-xs">
-                        <span class="badge badge-xs badge-primary">{{$exh.AgeGroupName}}</span>
-                    </div>
-                    {{else}}
-                    <div class="text-xs text-base-content/30">—</div>
-                    {{end}}
-                    <div class="text-xs text-base-content/70">
-                        <span class="text-primary font-semibold">{{$exh.EntryCount}}</span> {{if eq $exh.EntryCount 1}}entry{{else}}entries{{end}}
+                </div>
+            </summary>
+
+            <!-- Expanded Content -->
+            <div class="collapse-content border-t border-base-200 px-4 py-4 bg-base-50">
+                <!-- Entries Section -->
+                <div hx-get="/partials/entries-form/{{$exh.Id}}"
+                     hx-trigger="load"
+                     hx-target="this"
+                     hx-swap="innerHTML"
+                     class="mb-6">
+                    <div class="flex justify-center py-6">
+                        <span class="loading loading-spinner loading-sm text-primary"></span>
                     </div>
                 </div>
 
-                <!-- Action Buttons
-                <div class="flex items-center gap-1">
-                    <a href="/exhibitors/{{$exh.Id}}/edit"
-                        class="btn btn-ghost btn-xs btn-circle"
-                        title="Edit child">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                    </a>
+                <!-- Action Buttons Section -->
+                <div class="border-t border-base-200 pt-4 mt-4">
+                    <div class="flex gap-2">
+                        <a href="/exhibitors/{{$exh.Id}}/edit"
+                           class="btn btn-sm btn-ghost flex-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            Edit Child
+                        </a>
 
-                    <button type="button"
-                            class="btn btn-ghost btn-xs btn-circle text-error"
-                            title="Remove child"
-                            hx-delete="/exhibitors/{{$exh.Id}}"
-                            hx-target="#exhibitor-list"
-                            hx-swap="outerHTML"
-                            hx-confirm="Remove {{$exh.FirstName}} {{$exh.LastName}}? This cannot be undone.">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-                            <line x1="10" y1="11" x2="10" y2="17"></line>
-                            <line x1="14" y1="11" x2="14" y2="17"></line>
-                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-                        </svg>
-                    </button>
-                </div> -->
-            </summary>
+                        <form hx-delete="/exhibitors/{{$exh.Id}}"
+                              hx-target="#exhibitor-list"
+                              hx-swap="outerHTML"
+                              x-data="{ confirming: false }"
+                              class="flex-1">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline btn-error w-full"
+                                    x-show="!confirming"
+                                    @click="confirming = true">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                                </svg>
+                                Remove Child
+                            </button>
 
-            <!-- Expanded Content (Collapse Content) -->
-            <div class="collapse-content px-4 py-0">
-                <!-- Load full entries view with form -->
-                <div class="py-4 border-t border-base-200 -mx-4 px-4"
-                     hx-get="/partials/entries-form/{{$exh.Id}}"
-                     hx-trigger="load"
-                     hx-target="this"
-                     hx-swap="innerHTML">
-                    <div class="flex justify-center py-6">
-                        <span class="loading loading-spinner loading-sm text-primary"></span>
+                            <div x-show="confirming" x-cloak class="flex items-center gap-2 w-full">
+                                <span class="text-sm flex-1">Remove {{$exh.FirstName}}?</span>
+                                <button type="submit" class="btn btn-error btn-sm">
+                                    Yes, remove
+                                </button>
+                                <button type="button"
+                                        class="btn btn-ghost btn-sm"
+                                        @click="confirming = false">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

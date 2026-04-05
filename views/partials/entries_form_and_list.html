@@ -1,20 +1,25 @@
 {{if .NoAgeGroup}}
-    <div class="alert alert-warning">
-        <p>Birth date not set. Cannot determine eligible categories.</p>
+    <div class="alert alert-warning alert-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>Birth date not set. Cannot determine eligible categories.</span>
     </div>
 {{else}}
     <div class="space-y-4">
         <!-- Add Entry Form -->
-        <div class="bg-base-50 p-4 rounded-lg">
-            <h5 class="font-semibold text-sm mb-3">Add Entry</h5>
+        <div>
+            <h4 class="font-semibold text-sm mb-2">Add an Entry</h4>
             <form hx-post="/exhibitors/{{.ExhibitorID}}/entries"
                   hx-target="#entries-list"
                   hx-swap="innerHTML"
-                  class="space-y-3">
+                  class="flex gap-2 items-end">
 
-                <div>
-                    <label class="text-xs font-medium text-base-content/60 block mb-1">Eligible for: {{.AgeGroupName}}</label>
-                    <select name="category_id" class="select select-sm select-bordered w-full" required>
+                <div class="form-control flex-1">
+                    <label class="label label-text text-xs">Eligible for: <span class="font-semibold">{{.AgeGroupName}}</span></label>
+                    <select name="category_id" class="select select-bordered select-sm" required>
                         <option value="">Choose a category...</option>
                         {{range .Categories}}
                         {{if not .AlreadyEntered}}
@@ -26,43 +31,58 @@
 
                 <input type="hidden" name="age_group_id" value="{{.AgeGroupID}}" />
 
-                <button type="submit" class="btn btn-sm">
+                <button type="submit" class="btn btn-sm btn-primary">
                     Add Entry
                 </button>
             </form>
         </div>
 
-        <!-- Entries List -->
+        <!-- Entries Table -->
         <div id="entries-list">
-            <h5 class="font-semibold text-sm mb-2">Entries</h5>
+            <h4 class="font-semibold text-sm mb-2">Entries</h4>
             {{if .Entries}}
-                <div class="space-y-2">
-                    {{range .Entries}}
-                    <div class="flex items-center justify-between bg-base-50 p-3 rounded-lg text-sm">
-                        <div class="flex-1">
-                            <div class="font-medium">{{.CategoryName}}</div>
-                            <div class="text-xs text-base-content/60">{{.SectionName}} {{if .ShortCode}}({{.ShortCode}}){{end}}</div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="badge badge-sm">{{.Status}}</span>
-                            <button type="button"
-                                    class="btn btn-ghost btn-xs text-error"
-                                    hx-delete="/exhibitors/{{.ExhibitorID}}/entries/{{.EntryID}}"
-                                    hx-target="#entries-list"
-                                    hx-swap="innerHTML"
-                                    hx-confirm="Remove this entry?">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    {{end}}
+                <div class="overflow-x-auto">
+                    <table class="table table-sm table-zebra">
+                        <thead>
+                            <tr class="border-base-300">
+                                <th class="text-xs">Category</th>
+                                <th class="text-xs">Section</th>
+                                <th class="text-xs">Code</th>
+                                <th class="text-xs">Status</th>
+                                <th class="text-xs text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{range .Entries}}
+                            <tr class="border-base-300">
+                                <td class="text-sm font-medium">{{.CategoryName}}</td>
+                                <td class="text-sm text-base-content/70">{{.SectionName}}</td>
+                                <td class="text-xs text-base-content/50 font-mono">{{if .ShortCode}}{{.ShortCode}}{{else}}—{{end}}</td>
+                                <td class="text-xs">
+                                    <span class="badge badge-sm">{{.Status}}</span>
+                                </td>
+                                <td class="text-right">
+                                    <button type="button"
+                                            class="btn btn-ghost btn-xs text-error"
+                                            hx-delete="/exhibitors/{{.ExhibitorID}}/entries/{{.EntryID}}"
+                                            hx-target="#entries-list"
+                                            hx-swap="innerHTML"
+                                            title="Remove entry">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
                 </div>
             {{else}}
-                <p class="text-xs text-base-content/40 italic">No entries yet. Add one above to get started.</p>
+                <p class="text-xs text-base-content/40 italic py-2">No entries yet. Add one above to get started.</p>
             {{end}}
         </div>
     </div>
 {{end}}
+
