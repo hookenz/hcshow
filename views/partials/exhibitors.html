@@ -1,107 +1,90 @@
 {{if or .Exhibitors (not .Exhibitors)}}
 <div id="exhibitor-list">
-    <div class="overflow-x-auto rounded-xl shadow-sm">
-        <table class="table bg-base-100 w-full">
-            <thead>
-                <tr class="bg-base-200 text-base-content/60 text-xs uppercase tracking-wide">
-                    <th class="w-24">ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Date of Birth</th>
-                    <th class="w-16 text-center">Age</th>
-                    <th class="w-20"></th>
-                </tr>
-            </thead>
-            <tbody>
-                {{range .Exhibitors}}
-                <tr class="hover group">
-                    <td>
-                        <span class="font-mono text-xs text-base-content/50">
-                            {{.ExhibitorID}}
-                        </span>
-                    </td>
-                    <td class="font-medium">{{.FirstName}}</td>
-                    <td class="font-medium">{{.LastName}}</td>
-                    <td class="text-base-content/60 text-sm">{{.BirthDate}}</td>
-                    <td class="text-center">
-                        <span class="badge badge-ghost badge-sm font-medium">
-                            {{.Age}}
-                        </span>
-                    </td>
-                    <td class="text-right">
-                        <div class="flex items-center justify-end gap-1
-                                    opacity-0 group-hover:opacity-100 transition-opacity">
-                            <!-- Edit -->
-                            <a href="/exhibitors/{{.Id}}/edit"
-                                class="btn btn-ghost btn-xs btn-square tooltip tooltip-left"
-                                data-tip="Edit child">
-                                <svg xmlns="http://www.w3.org/2000/svg" 
-                                    class="h-4 w-4 text-base-content" 
-                                    viewBox="0 0 24 24" fill="none" 
-                                    stroke="currentColor" stroke-width="2" 
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                </svg>
-                            </a>
-                            <a href="/exhibitors/{{.Id}}/entries"
-                                class="btn btn-ghost btn-xs btn-square tooltip tooltip-left"
-                                data-tip="Manage entries">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="8" y1="6" x2="21" y2="6"></line>
-                                    <line x1="8" y1="12" x2="21" y2="12"></line>
-                                    <line x1="8" y1="18" x2="21" y2="18"></line>
-                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                                </svg>
-                            </a>
+    <div class="space-y-3">
+        {{range $idx, $exh := .Exhibitors}}
+        <details class="collapse collapse-arrow bg-base-100 border border-base-200">
+            <!-- <input type="radio" name="exhibitor-accordion" {{if eq $idx 0}}checked{{end}} /> -->
 
-                            <!-- Delete -->
-                            <button class="btn btn-ghost btn-xs btn-square text-error tooltip tooltip-left"
-                                    data-tip="Remove child"
-                                    hx-delete="/exhibitors/{{.Id}}"
-                                    hx-target="#exhibitor-list"
-                                    hx-swap="outerHTML"
-                                    hx-confirm="Remove {{.FirstName}} {{.LastName}}? This cannot be undone.">
-                                <svg xmlns="http://www.w3.org/2000/svg" 
-                                    class="h-4 w-4 text-error" 
-                                    viewBox="0 0 24 24" fill="none" 
-                                    stroke="currentColor" stroke-width="2" 
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-                                    <path d="M10 11v6"></path>
-                                    <path d="M14 11v6"></path>
-                                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-                                </svg>
-                            </button>
-                    </td>
-                </tr>
-                {{end}}
+            <!-- Header (Collapse Title) -->
+            <summary class="collapse-title px-4 py-3 flex items-center justify-between cursor-pointer">
+                <div class="flex-1 grid grid-cols-[2fr_1.3fr_0.8fr_1fr_1fr] gap-3 items-center text-sm">
+                    <div class="font-medium">{{$exh.FirstName}} {{$exh.LastName}}</div>
+                    <div class="text-xs text-base-content/60">
+                        {{$exh.BirthDate}}
+                    </div>
+                    <div class="text-xs">
+                        <span class="badge badge-sm badge-ghost">{{$exh.Age}}y</span>
+                    </div>
+                    {{if $exh.AgeGroupName}}
+                    <div class="text-xs">
+                        <span class="badge badge-xs badge-primary">{{$exh.AgeGroupName}}</span>
+                    </div>
+                    {{else}}
+                    <div class="text-xs text-base-content/30">—</div>
+                    {{end}}
+                    <div class="text-xs text-base-content/70">
+                        <span class="text-primary font-semibold">{{$exh.EntryCount}}</span> {{if eq $exh.EntryCount 1}}entry{{else}}entries{{end}}
+                    </div>
+                </div>
 
-                <!-- Add child row -->
-                <tr>
-                    <td colspan="6" class="p-0">
-                        <a href="/exhibitors/new"
-                           class="flex items-center gap-2 w-full px-4 py-3
-                                  text-sm text-base-content/40 hover:text-primary
-                                  hover:bg-base-50 transition-colors group/add">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-add" viewBox="0 0 16 16">
-                                <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0m-2-6a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
-                                <path d="M8.256 14a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1z"/>
-                            </svg>
-                            Add a child
-                        </a>
-                    </td>
-                </tr>
+                <!-- Action Buttons
+                <div class="flex items-center gap-1">
+                    <a href="/exhibitors/{{$exh.Id}}/edit"
+                        class="btn btn-ghost btn-xs btn-circle"
+                        title="Edit child">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </a>
 
-            </tbody>
-        </table>
+                    <button type="button"
+                            class="btn btn-ghost btn-xs btn-circle text-error"
+                            title="Remove child"
+                            hx-delete="/exhibitors/{{$exh.Id}}"
+                            hx-target="#exhibitor-list"
+                            hx-swap="outerHTML"
+                            hx-confirm="Remove {{$exh.FirstName}} {{$exh.LastName}}? This cannot be undone.">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                        </svg>
+                    </button>
+                </div> -->
+            </summary>
+
+            <!-- Expanded Content (Collapse Content) -->
+            <div class="collapse-content px-4 py-0">
+                <!-- Load full entries view with form -->
+                <div class="py-4 border-t border-base-200 -mx-4 px-4"
+                     hx-get="/partials/entries-form/{{$exh.Id}}"
+                     hx-trigger="load"
+                     hx-target="this"
+                     hx-swap="innerHTML">
+                    <div class="flex justify-center py-6">
+                        <span class="loading loading-spinner loading-sm text-primary"></span>
+                    </div>
+                </div>
+            </div>
+        </details>
+        {{end}}
+
+        <!-- Add child button -->
+        <a href="/exhibitors/new"
+           class="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg border-2 border-dashed border-base-300 hover:border-primary hover:text-primary transition-colors text-sm text-base-content/50 hover:bg-base-50">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+            <span>Add a child</span>
+        </a>
     </div>
 
     {{if .Exhibitors}}
-    <p class="text-xs text-base-content/30 mt-2 text-right">
+    <p class="text-xs text-base-content/30 mt-4 text-right">
         {{len .Exhibitors}} {{if eq (len .Exhibitors) 1}}child{{else}}children{{end}} registered
     </p>
     {{end}}

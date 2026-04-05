@@ -254,29 +254,16 @@ func Dashboard(app *pocketbase.PocketBase, registry *template.Registry) func(*co
 		if err == nil && len(childRecords) > 0 {
 			hasChildren = true
 
-			// Check if user's children have any exhibit entries
-			var exhibitorIDs []string
+			// Check if ALL children have at least one exhibit entry
+			allChildrenHaveExhibits := true
 			for _, child := range childRecords {
-				exhibitorIDs = append(exhibitorIDs, child.Id)
-			}
-
-			// Build a parameterized filter for exhibits where exhibitor is one of the user's children
-			filter := "exhibitor in ("
-			params := make(dbx.Params)
-			for i, id := range exhibitorIDs {
-				if i > 0 {
-					filter += ", "
+				exhibits, err := app.FindRecordsByFilter("exhibits", "exhibitor = {:childId}", "", 1, 0, dbx.Params{"childId": child.Id})
+				if err != nil || len(exhibits) == 0 {
+					allChildrenHaveExhibits = false
+					break
 				}
-				paramKey := "exid" + string(rune('0'+i))
-				filter += "{:" + paramKey + "}"
-				params[paramKey] = id
 			}
-			filter += ")"
-
-			exhibits, err := app.FindRecordsByFilter("exhibits", filter, "", 1, 0, params)
-			if err == nil && len(exhibits) > 0 {
-				hasExhibits = true
-			}
+			hasExhibits = allChildrenHaveExhibits
 		}
 
 		// Check if user has helper signup record

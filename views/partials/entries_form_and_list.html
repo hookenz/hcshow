@@ -1,0 +1,68 @@
+{{if .NoAgeGroup}}
+    <div class="alert alert-warning">
+        <p>Birth date not set. Cannot determine eligible categories.</p>
+    </div>
+{{else}}
+    <div class="space-y-4">
+        <!-- Add Entry Form -->
+        <div class="bg-base-50 p-4 rounded-lg">
+            <h5 class="font-semibold text-sm mb-3">Add Entry</h5>
+            <form hx-post="/exhibitors/{{.ExhibitorID}}/entries"
+                  hx-target="#entries-list"
+                  hx-swap="innerHTML"
+                  class="space-y-3">
+
+                <div>
+                    <label class="text-xs font-medium text-base-content/60 block mb-1">Eligible for: {{.AgeGroupName}}</label>
+                    <select name="category_id" class="select select-sm select-bordered w-full" required>
+                        <option value="">Choose a category...</option>
+                        {{range .Categories}}
+                        {{if not .AlreadyEntered}}
+                        <option value="{{.CategoryID}}">{{.SectionName}} — {{.CategoryName}}</option>
+                        {{end}}
+                        {{end}}
+                    </select>
+                </div>
+
+                <input type="hidden" name="age_group_id" value="{{.AgeGroupID}}" />
+
+                <button type="submit" class="btn btn-sm">
+                    Add Entry
+                </button>
+            </form>
+        </div>
+
+        <!-- Entries List -->
+        <div id="entries-list">
+            <h5 class="font-semibold text-sm mb-2">Entries</h5>
+            {{if .Entries}}
+                <div class="space-y-2">
+                    {{range .Entries}}
+                    <div class="flex items-center justify-between bg-base-50 p-3 rounded-lg text-sm">
+                        <div class="flex-1">
+                            <div class="font-medium">{{.CategoryName}}</div>
+                            <div class="text-xs text-base-content/60">{{.SectionName}} {{if .ShortCode}}({{.ShortCode}}){{end}}</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="badge badge-sm">{{.Status}}</span>
+                            <button type="button"
+                                    class="btn btn-ghost btn-xs text-error"
+                                    hx-delete="/exhibitors/{{.ExhibitorID}}/entries/{{.EntryID}}"
+                                    hx-target="#entries-list"
+                                    hx-swap="innerHTML"
+                                    hx-confirm="Remove this entry?">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            {{else}}
+                <p class="text-xs text-base-content/40 italic">No entries yet. Add one above to get started.</p>
+            {{end}}
+        </div>
+    </div>
+{{end}}

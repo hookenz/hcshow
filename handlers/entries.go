@@ -30,6 +30,7 @@ type EntriesPageData struct {
 	AgeGroupName string
 	AgeGroupID   string
 	Categories   []CategoryOption
+	Entries      []EntryRow
 	NoAgeGroup   bool
 	Error        string
 }
@@ -53,6 +54,24 @@ func ShowEntries(app *pocketbase.PocketBase, registry *template.Registry) func(*
 		html, err := registry.LoadFiles(
 			"views/layout.html",
 			"views/entries.html",
+		).Render(data)
+		if err != nil {
+			return e.InternalServerError("", err)
+		}
+		return e.HTML(http.StatusOK, html)
+	}
+}
+
+// ShowEntriesPartial returns the entries form and list as a partial (no layout)
+func ShowEntriesPartial(app *pocketbase.PocketBase, registry *template.Registry) func(*core.RequestEvent) error {
+	return func(e *core.RequestEvent) error {
+		data, err := buildEntriesData(app, e)
+		if err != nil {
+			return e.InternalServerError("", err)
+		}
+
+		html, err := registry.LoadFiles(
+			"views/partials/entries_form_and_list.html",
 		).Render(data)
 		if err != nil {
 			return e.InternalServerError("", err)
@@ -325,6 +344,12 @@ func buildEntriesData(app *pocketbase.PocketBase, e *core.RequestEvent) (*Entrie
 		}
 		return cmp.Compare(a.CategoryName, b.CategoryName)
 	})
+
+	// Fetch existing entries for display
+	entries, err := fetchEntryRows(app, exhibitorID)
+	if err == nil {
+		data.Entries = entries
+	}
 
 	return data, nil
 }

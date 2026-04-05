@@ -38,6 +38,7 @@ func main() {
 
 		protected.GET("/partials/exhibitors", handlers.ListExhibitors(app, registry))
 		protected.GET("/partials/entries/{id}", handlers.ListEntries(app, registry))
+		protected.GET("/partials/entries-form/{id}", handlers.ShowEntriesPartial(app, registry))
 		protected.GET("/exhibitors/new", handlers.NewExhibitorForm(registry))
 		protected.POST("/exhibitors/new", handlers.CreateExhibitor(app, registry))
 		protected.GET("/exhibitors/{id}/edit", handlers.EditExhibitorForm(app, registry))

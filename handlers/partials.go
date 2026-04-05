@@ -32,13 +32,27 @@ func renderExhibitorList(app *pocketbase.PocketBase, registry *template.Registry
 
 	rows := make([]models.ExhibitorRow, len(records))
 	for i, r := range records {
-		rows[i] = models.BuildExhibitorRow(
+		row := models.BuildExhibitorRow(
 			r.Id,
 			r.GetString("exhibitor_id"),
 			r.GetString("first_name"),
 			r.GetString("last_name"),
 			r.GetDateTime("birth_date"),
 		)
+
+		// Count entries for this exhibitor
+		entries, err := app.FindRecordsByFilter("exhibits", "exhibitor = {:id}", "", 100, 0, dbx.Params{"id": r.Id})
+		if err == nil {
+			row.EntryCount = len(entries)
+		}
+
+		// Find age group for this exhibitor (convert age to float64 for comparison)
+		ageGroups, err := app.FindRecordsByFilter("age_group", "min <= {:age} && max >= {:age}", "", 100, 0, dbx.Params{"age": float64(row.Age)})
+		if err == nil && len(ageGroups) > 0 {
+			row.AgeGroupName = ageGroups[0].GetString("name")
+		}
+
+		rows[i] = row
 	}
 
 	html, err := registry.LoadFiles(

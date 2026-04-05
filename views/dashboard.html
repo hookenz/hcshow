@@ -86,9 +86,17 @@
             </svg>
             <div>
                 <p class="font-semibold">Registration incomplete</p>
-                <p class="text-sm">Completing the parent helper sign-up is compulsory to finalise your registration.</p>
+                {{if not .HasChildren}}
+                <p class="text-sm">Start by adding at least one child below.</p>
+                {{else if not .HasExhibits}}
+                <p class="text-sm">Each child must have at least one exhibit entry. Click on a child below to expand and add entries.</p>
+                {{else}}
+                <p class="text-sm">Complete the parent helper sign-up to finalise your registration.</p>
+                {{end}}
             </div>
+            {{if and .HasChildren .HasExhibits}}
             <a href="/helper-signup" class="btn btn-sm btn-warning">Complete now</a>
+            {{end}}
         </div>
         {{else}}
         <div class="alert alert-success shadow-sm">

@@ -10,12 +10,14 @@ import (
 )
 
 type ExhibitorRow struct {
-	Id          string
-	ExhibitorID string
-	FirstName   string
-	LastName    string
-	BirthDate   string
-	Age         int
+	Id           string
+	ExhibitorID  string
+	FirstName    string
+	LastName     string
+	BirthDate    string
+	Age          int
+	EntryCount   int
+	AgeGroupName string
 }
 
 func BirthDateForInput(dt types.DateTime) string {
@@ -39,12 +41,14 @@ func BuildExhibitorRow(id, exhibitorID, firstName, lastName string, birthDT type
 		}
 	}
 	return ExhibitorRow{
-		Id:          id,
-		ExhibitorID: exhibitorID,
-		FirstName:   firstName,
-		LastName:    lastName,
-		BirthDate:   birthDate,
-		Age:         age,
+		Id:           id,
+		ExhibitorID:  exhibitorID,
+		FirstName:    firstName,
+		LastName:     lastName,
+		BirthDate:    birthDate,
+		Age:          age,
+		EntryCount:   0,
+		AgeGroupName: "",
 	}
 }
 
