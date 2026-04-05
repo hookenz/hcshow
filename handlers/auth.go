@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/altcha-org/altcha-lib-go"
+	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/tools/template"
@@ -243,13 +244,54 @@ func Dashboard(app *pocketbase.PocketBase, registry *template.Registry) func(*co
 			}
 		}
 
+		// Calculate registration completion flags
+		hasChildren := false
+		hasExhibits := false
+		hasHelperSignup := false
+
+		// Check if user has any children (exhibitors)
+		childRecords, err := app.FindRecordsByFilter("exhibitor", "user = {:userId}", "", 100, 0, dbx.Params{"userId": e.Auth.Id})
+		if err == nil && len(childRecords) > 0 {
+			hasChildren = true
+
+			// Check if user's children have any exhibit entries
+			var exhibitorIDs []string
+			for _, child := range childRecords {
+				exhibitorIDs = append(exhibitorIDs, child.Id)
+			}
+
+			// Build a parameterized filter for exhibits where exhibitor is one of the user's children
+			filter := "exhibitor in ("
+			params := make(dbx.Params)
+			for i, id := range exhibitorIDs {
+				if i > 0 {
+					filter += ", "
+				}
+				paramKey := "exid" + string(rune('0'+i))
+				filter += "{:" + paramKey + "}"
+				params[paramKey] = id
+			}
+			filter += ")"
+
+			exhibits, err := app.FindRecordsByFilter("exhibits", filter, "", 1, 0, params)
+			if err == nil && len(exhibits) > 0 {
+				hasExhibits = true
+			}
+		}
+
+		// Check if user has helper signup record
+		hasHelperSignup = HasHelperSignup(app, e.Auth.Id)
+
 		html, err := registry.LoadFiles(
 			"views/layout.html",
 			"views/dashboard.html",
 		).Render(map[string]any{
-			"UserEmail":   e.Auth.Email(),
-			"ShowDate":    showDate,
-			"ShowDateISO": showDateISO,
+			"UserEmail":       e.Auth.Email(),
+			"ShowDate":        showDate,
+			"ShowDateISO":     showDateISO,
+			"HasChildren":     hasChildren,
+			"HasExhibits":     hasExhibits,
+			"HasHelperSignup": hasHelperSignup,
 		})
 		if err != nil {
 			return e.InternalServerError("", err)

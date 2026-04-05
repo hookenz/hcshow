@@ -47,6 +47,10 @@ func main() {
 		protected.POST("/exhibitors/{id}/entries", handlers.CreateEntry(app, registry))
 		protected.DELETE("/exhibitors/{id}/entries/{entryid}", handlers.DeleteEntry(app, registry))
 
+		// Helper signup routes (add to protected group)
+		protected.GET("/helper-signup", handlers.ShowHelperForm(app, registry))
+		protected.POST("/helper-signup", handlers.HandleHelperSubmit(app, registry))
+
 		se.Router.GET("/static/{path...}", apis.Static(os.DirFS("./pb_public"), false))
 
 		return se.Next()

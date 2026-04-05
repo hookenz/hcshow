@@ -1,0 +1,229 @@
+{{define "title"}}Parent Helper Sign-up{{end}}
+
+{{define "body"}}
+<div class="min-h-screen bg-base-200">
+
+    <div class="navbar bg-base-100 shadow-sm px-4">
+        <div class="flex-1 gap-3">
+            <a href="/" class="btn btn-ghost btn-sm btn-circle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <span class="text-xl font-bold text-primary">Home &amp; Country Show</span>
+        </div>
+        <div class="flex-none gap-2">
+            <span class="text-sm text-base-content/60 hidden sm:block">{{.UserEmail}}</span>
+            <form hx-post="/logout" hx-target="body" hx-swap="outerHTML">
+                <button class="btn btn-ghost btn-sm">Logout</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="max-w-2xl mx-auto p-4 mt-6 flex flex-col gap-6"
+         id="helper-form-root"
+         x-data="helperForm()"
+         data-unable="{{if .ExistingForm}}{{if .ExistingForm.UnableToVolunteer}}1{{else}}0{{end}}{{else}}0{{end}}"
+         data-helpers='{{if .ExistingForm}}{{.ExistingForm.HelpersJSON}}{{else}}[]{{end}}'>
+
+        <div>
+            <h2 class="text-2xl font-bold">Parent Helper Sign-up</h2>
+            <p class="text-base-content/60 text-sm mt-1">Compulsory — registration is not finalised until this is submitted.</p>
+        </div>
+
+        <div class="alert bg-primary/10 border border-primary/20 text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/>
+            </svg>
+            <p>Our Home &amp; Country Show is a big endeavour and can only succeed with the efforts of all participating families. Filling out this form is a <strong>compulsory</strong> part of registration to help spread the load amongst more people.</p>
+        </div>
+
+        <form hx-post="/helper-signup"
+              hx-target="body"
+              hx-swap="outerHTML">
+
+            <!-- ── Parent's Details ─────────────────────────────────────── -->
+            <div class="bg-base-100 rounded-xl shadow-sm overflow-hidden mb-5">
+                <div class="px-5 py-4 border-b border-base-200">
+                    <h3 class="font-semibold">Parent's Details</h3>
+                </div>
+                <div class="px-5 py-4 flex flex-col gap-4">
+
+                    <label class="form-control w-full">
+                        <div class="label"><span class="label-text">Parent's Name <span class="text-error">*</span></span></div>
+                        <input type="text" name="parent_name"
+                               value="{{if .ExistingForm}}{{.ExistingForm.ParentName}}{{end}}"
+                               class="input input-bordered w-full" required placeholder="Full name" />
+                    </label>
+
+                    <label class="form-control w-full">
+                        <div class="label"><span class="label-text">Cell Number <span class="text-error">*</span></span></div>
+                        <input type="tel" name="cell_number"
+                               value="{{if .ExistingForm}}{{.ExistingForm.CellNumber}}{{end}}"
+                               class="input input-bordered w-full" required placeholder="02x xxx xxxx" />
+                    </label>
+
+                    <label class="form-control w-full">
+                        <div class="label"><span class="label-text">Email <span class="text-error">*</span></span></div>
+                        <input type="email" name="email"
+                               value="{{if .ExistingForm}}{{.ExistingForm.Email}}{{else}}{{.UserEmail}}{{end}}"
+                               class="input input-bordered w-full" required />
+                    </label>
+
+                    <div class="divider my-0"></div>
+
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" name="is_committee_member" value="true"
+                               class="checkbox checkbox-primary checkbox-sm mt-0.5"
+                               {{if .ExistingForm}}{{if .ExistingForm.IsCommitteeMember}}checked{{end}}{{end}} />
+                        <span class="text-sm">Are you on the Home &amp; Country Show Committee?</span>
+                    </label>
+
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" name="has_allocated_role" value="true"
+                               class="checkbox checkbox-primary checkbox-sm mt-0.5"
+                               {{if .ExistingForm}}{{if .ExistingForm.HasAllocatedRole}}checked{{end}}{{end}} />
+                        <span class="text-sm">Have you already been allocated a role by the Home &amp; Country Show Committee?</span>
+                    </label>
+
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" name="unable_to_volunteer" value="true"
+                               class="checkbox checkbox-warning checkbox-sm mt-0.5"
+                               x-model="unableToVolunteer"
+                               {{if .ExistingForm}}{{if .ExistingForm.UnableToVolunteer}}checked{{end}}{{end}} />
+                        <span class="text-sm">We recognise there will be some situations where volunteering is just not possible for your family this year. Does this apply to you?</span>
+                    </label>
+
+                </div>
+            </div>
+
+            <!-- ── Details of People Able to Help ─────────────────────── -->
+            <div class="bg-base-100 rounded-xl shadow-sm overflow-hidden mb-5">
+                <div class="px-5 py-4 border-b border-base-200">
+                    <h3 class="font-semibold">Details of People Able to Help</h3>
+                    <p class="text-xs text-base-content/50 mt-0.5">Older Teens not entering the Show, and Extended Family are able to help too!</p>
+                </div>
+
+                <div class="px-5 pt-3 pb-1 overflow-x-auto">
+                    <!-- Column headers -->
+                    <div class="min-w-[600px]">
+                        <div class="grid grid-cols-[1fr_1fr_8rem_8rem_9rem_1.5rem] gap-x-2 text-xs font-semibold uppercase tracking-wider text-base-content/40 pb-2">
+                            <span>First Name</span>
+                            <span>Last Name</span>
+                            <span>Cell Number</span>
+                            <span>Relationship</span>
+                            <span>Notes</span>
+                            <span></span>
+                        </div>
+
+                        <!-- Helper rows -->
+                        <div class="flex flex-col gap-2 pb-3">
+                            <template x-for="(h, i) in helpers" :key="i">
+                                <div class="grid grid-cols-[1fr_1fr_8rem_8rem_9rem_1.5rem] gap-x-2 items-center">
+                                    <input type="text" :name="`helpers[${i}][first_name]`" x-model="h.first_name"
+                                           class="input input-bordered input-sm w-full" placeholder="First Name" />
+                                    <input type="text" :name="`helpers[${i}][last_name]`" x-model="h.last_name"
+                                           class="input input-bordered input-sm w-full" placeholder="Last Name" />
+                                    <input type="tel" :name="`helpers[${i}][cell]`" x-model="h.cell"
+                                           class="input input-bordered input-sm w-full" placeholder="Cell Number" />
+                                    <input type="text" :name="`helpers[${i}][relationship]`" x-model="h.relationship"
+                                           class="input input-bordered input-sm w-full" placeholder="Relationship" />
+                                    <input type="text" :name="`helpers[${i}][notes]`" x-model="h.notes"
+                                           class="input input-bordered input-sm w-full" placeholder="Notes" />
+                                    <button type="button" @click="helpers.splice(i, 1)"
+                                            class="btn btn-ghost btn-xs btn-circle text-base-content/30 hover:text-error">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-5 pb-4">
+                    <button type="button"
+                            @click="helpers.push({first_name:'',last_name:'',cell:'',relationship:'',notes:''})"
+                            class="btn btn-ghost btn-sm gap-1.5 text-base-content/50">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add a person
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── Where are you able to help? ────────────────────────── -->
+            <div class="bg-base-100 rounded-xl shadow-sm overflow-hidden mb-5"
+                 x-show="!unableToVolunteer" x-cloak>
+                <div class="px-5 py-4 border-b border-base-200">
+                    <h3 class="font-semibold">Where are you or your family members able to help?</h3>
+                    <p class="text-xs text-base-content/50 mt-1 leading-relaxed">
+                        Preferably, where help is required for an extended period, the role will be shared amongst multiple people.
+                        Please make multiple choices so that we can allocate you to an option you would prefer.
+                        If we do not receive enough helpers, you may be allocated to an option you did not pick.
+                    </p>
+                </div>
+                <div class="px-5 py-4 flex flex-col gap-3">
+
+                    {{range .Roles}}
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" name="roles" value="{{.Key}}"
+                               class="checkbox checkbox-primary checkbox-sm mt-0.5"
+                               {{if $.ExistingForm}}{{if $.ExistingForm.HasRole .Key}}checked{{end}}{{end}} />
+                        <span class="text-sm">{{.Label}}</span>
+                    </label>
+                    {{end}}
+
+                </div>
+            </div>
+
+            <!-- ── MHE Membership ──────────────────────────────────────── -->
+            <div class="bg-base-100 rounded-xl shadow-sm overflow-hidden mb-5">
+                <div class="px-5 py-4 border-b border-base-200">
+                    <h3 class="font-semibold">MHE Membership</h3>
+                </div>
+                <div class="px-5 py-4 flex flex-col gap-3">
+
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="radio" name="mhe_membership" value="member"
+                               class="radio radio-primary radio-sm"
+                               {{if .ExistingForm}}{{if eq .ExistingForm.MheMembership "member"}}checked{{end}}{{end}} />
+                        <span class="text-sm">Yes, we are members.</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="radio" name="mhe_membership" value="join"
+                               class="radio radio-primary radio-sm"
+                               {{if .ExistingForm}}{{if eq .ExistingForm.MheMembership "join"}}checked{{end}}{{end}} />
+                        <span class="text-sm">No, we are not members but wish to join MHE.</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="radio" name="mhe_membership" value="none"
+                               class="radio radio-primary radio-sm"
+                               {{if .ExistingForm}}{{if eq .ExistingForm.MheMembership "none"}}checked{{end}}{{end}} />
+                        <span class="text-sm">No, we are not members and do not wish to join at this stage.</span>
+                    </label>
+
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary w-full">
+                Submit Parent Help Form
+            </button>
+
+        </form>
+    </div>
+</div>
+
+<script>
+function helperForm() {
+    const root = document.getElementById('helper-form-root');
+    return {
+        unableToVolunteer: root.dataset.unable === '1',
+        helpers: JSON.parse(root.dataset.helpers || '[]'),
+    }
+}
+</script>
+{{end}}
