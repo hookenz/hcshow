@@ -2190,6 +2190,9 @@
   .ml-1 {
     margin-left: calc(var(--spacing) * 1);
   }
+  .ml-2 {
+    margin-left: calc(var(--spacing) * 2);
+  }
   .status {
     @layer daisyui.l1.l2.l3 {
       display: inline-block;
@@ -2560,6 +2563,20 @@
       background-image: none;
     }
   }
+  .select-ghost {
+    @layer daisyui.l1.l2 {
+      background-color: transparent;
+      transition: background-color 0.2s;
+      box-shadow: none;
+      border-color: #0000;
+      &:focus, &:focus-within {
+        background-color: var(--color-base-100);
+        color: var(--color-base-content);
+        border-color: #0000;
+        box-shadow: none;
+      }
+    }
+  }
   .border-base-200 {
     border-color: var(--color-base-200);
   }
@@ -2778,6 +2795,9 @@
   .tracking-widest {
     --tw-tracking: var(--tracking-widest);
     letter-spacing: var(--tracking-widest);
+  }
+  .whitespace-nowrap {
+    white-space: nowrap;
   }
   .alert-error {
     @layer daisyui.l1.l2 {

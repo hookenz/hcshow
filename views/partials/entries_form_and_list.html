@@ -19,7 +19,7 @@
 
                 <div class="form-control flex-1">
                     <label class="label label-text text-xs">Eligible for: <span class="font-semibold">{{.AgeGroupName}}</span></label>
-                    <select name="category_id" class="select select-bordered select-sm" required>
+                    <select name="category_id" class="select select-ghost select-sm ml-2" required>
                         <option value="">Choose a category...</option>
                         {{range .Categories}}
                         {{if not .AlreadyEntered}}
