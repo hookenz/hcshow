@@ -16,7 +16,7 @@
     </div>
 
     <div class="max-w-4xl mx-auto p-4 mt-6 flex flex-col gap-6">
-
+        
         {{if .ShowDate}}
         <div class="flex items-center justify-between bg-base-100 rounded-xl px-5 py-3 shadow-sm"
             x-data="countdown('{{.ShowDateISO}}')"
@@ -35,25 +35,30 @@
                     <p class="font-semibold text-sm">{{.ShowDate}}</p>
                 </div>
             </div>
-            <div x-show="!passed" class="flex items-center gap-1.5 text-right">
-                <div class="flex items-baseline gap-0.5">
-                    <span class="font-mono font-bold text-lg tabular-nums" x-text="String(days).padStart(2,'0')">00</span>
-                    <span class="text-xs text-base-content/40">d</span>
+            <div x-show="!passed" class="grid auto-cols-max grid-flow-col gap-5 text-center">
+                <div class="flex flex-col">
+                    <span class="countdown font-mono text-2xl">
+                        <span x-ref="days" style="--value:0;" aria-live="polite" :aria-label="days">0</span>
+                    </span>
+                    days
                 </div>
-                <span class="text-base-content/30 font-bold">:</span>
-                <div class="flex items-baseline gap-0.5">
-                    <span class="font-mono font-bold text-lg tabular-nums" x-text="String(hours).padStart(2,'0')">00</span>
-                    <span class="text-xs text-base-content/40">h</span>
+                <div class="flex flex-col">
+                    <span class="countdown font-mono text-2xl">
+                        <span x-ref="hours" style="--value:0;" aria-live="polite" :aria-label="hours">0</span>
+                    </span>
+                    hours
                 </div>
-                <span class="text-base-content/30 font-bold">:</span>
-                <div class="flex items-baseline gap-0.5">
-                    <span class="font-mono font-bold text-lg tabular-nums" x-text="String(minutes).padStart(2,'0')">00</span>
-                    <span class="text-xs text-base-content/40">m</span>
+                <div class="flex flex-col">
+                    <span class="countdown font-mono text-2xl">
+                        <span x-ref="minutes" style="--value:0;" aria-live="polite" :aria-label="minutes">0</span>
+                    </span>
+                    min
                 </div>
-                <span class="text-base-content/30 font-bold">:</span>
-                <div class="flex items-baseline gap-0.5">
-                    <span class="font-mono font-bold text-lg tabular-nums" x-text="String(seconds).padStart(2,'0')">00</span>
-                    <span class="text-xs text-base-content/40">s</span>
+                <div class="flex flex-col">
+                    <span class="countdown font-mono text-2xl">
+                        <span x-ref="seconds" style="--value:0;" aria-live="polite" :aria-label="seconds">0</span>
+                    </span>
+                    sec
                 </div>
             </div>
             <div x-show="passed" x-cloak>
@@ -154,6 +159,11 @@ function countdown(targetISO) {
             this.hours   = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
             this.minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
             this.seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
+            this.$refs.days.style.setProperty('--value', this.days)
+            this.$refs.hours.style.setProperty('--value', this.hours)
+            this.$refs.minutes.style.setProperty('--value', this.minutes)
+            this.$refs.seconds.style.setProperty('--value', this.seconds)
         }
     }
 }
