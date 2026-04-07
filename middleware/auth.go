@@ -30,6 +30,25 @@ func RequireAuth(app *pocketbase.PocketBase) func(*core.RequestEvent) error {
 	}
 }
 
+func RequireAdmin(app *pocketbase.PocketBase) func(*core.RequestEvent) error {
+	return func(e *core.RequestEvent) error {
+		if err := RequireAuth(app)(e); err != nil {
+			return err
+		}
+
+		// Check if user has admin role
+		role := e.Auth.GetString("role")
+		if role != "admin" {
+			if e.Request.Header.Get("HX-Request") == "true" {
+				return e.ForbiddenError("", nil)
+			}
+			return e.Redirect(307, "/")
+		}
+
+		return e.Next()
+	}
+}
+
 func redirectToLogin(e *core.RequestEvent) error {
 	if e.Request.Header.Get("HX-Request") == "true" {
 		e.Response.Header().Set("HX-Redirect", "/login")

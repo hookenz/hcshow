@@ -52,6 +52,17 @@ func main() {
 		protected.GET("/helper-signup", handlers.ShowHelperForm(app, registry))
 		protected.POST("/helper-signup", handlers.HandleHelperSubmit(app, registry))
 
+		// Admin routes (authenticated + admin role required)
+		admin := se.Router.Group("")
+		admin.BindFunc(middleware.RequireAdmin(app))
+
+		admin.GET("/admin", handlers.AdminDashboard(app, registry))
+		admin.GET("/admin/reports/entry-cards", handlers.PrintEntryCardsReport(app, registry))
+		admin.GET("/admin/reports/age-group-summary", handlers.PrintExhibitorAgeGroupReport(app, registry))
+		admin.GET("/admin/reports/hall-planning", handlers.PrintHallPlanningReport(app, registry))
+		admin.GET("/admin/reports/pre-show-stats", handlers.PrintPreShowStatsReport(app, registry))
+		admin.GET("/admin/reports/table-cards", handlers.CheckTableCards(app, registry))
+
 		se.Router.GET("/static/{path...}", apis.Static(os.DirFS("./pb_public"), false))
 
 		return se.Next()

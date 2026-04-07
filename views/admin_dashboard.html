@@ -1,0 +1,299 @@
+{{define "title"}}Admin Dashboard{{end}}
+
+{{define "body"}}
+<div class="min-h-screen bg-base-200">
+
+    <div class="navbar bg-base-100 shadow-sm px-4">
+        <div class="flex-1">
+            <span class="text-xl font-bold text-primary">Home &amp; Country Show - Admin</span>
+        </div>
+        <div class="flex-none gap-2">
+            <span class="text-sm text-base-content/60 hidden sm:block">{{.UserEmail}}</span>
+            <form hx-post="/logout" hx-target="body" hx-swap="outerHTML">
+                <button class="btn btn-ghost btn-sm">Logout</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto p-4 mt-6">
+
+        <!-- Tabbed Interface -->
+        <div role="tablist" class="tabs tabs-lifted shadow-lg bg-base-100 rounded-t-lg">
+            <input type="radio" name="admin_tabs" role="tab" class="tab" aria-label="Status Overview" checked />
+            <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-b-lg p-6">
+                {{template "status-overview" .}}
+            </div>
+
+            <input type="radio" name="admin_tabs" role="tab" class="tab" aria-label="Before Registrations" />
+            <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-b-lg p-6">
+                {{template "before-registrations" .}}
+            </div>
+
+            <input type="radio" name="admin_tabs" role="tab" class="tab" aria-label="After Registrations Close" />
+            <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-b-lg p-6">
+                {{template "after-registrations-close" .}}
+            </div>
+
+            <input type="radio" name="admin_tabs" role="tab" class="tab" aria-label="Prep for Show" />
+            <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-b-lg p-6">
+                {{template "prep-for-show" .}}
+            </div>
+
+            <input type="radio" name="admin_tabs" role="tab" class="tab" aria-label="On the Day" />
+            <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-b-lg p-6">
+                {{template "on-the-day" .}}
+            </div>
+
+            <input type="radio" name="admin_tabs" role="tab" class="tab" aria-label="After the Show" />
+            <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-b-lg p-6">
+                {{template "after-the-show" .}}
+            </div>
+        </div>
+
+    </div>
+</div>
+{{end}}
+
+<!-- Status Overview Tab -->
+{{define "status-overview"}}
+<div class="space-y-6">
+    <h2 class="text-2xl font-bold">Status Overview</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Current Phase Card -->
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title text-lg">Current Phase</h3>
+                <div class="badge badge-lg {{if eq .CurrentPhase "before_open"}}badge-warning{{else if eq .CurrentPhase "open"}}badge-success{{else if eq .CurrentPhase "prep"}}badge-info{{else if eq .CurrentPhase "show_day"}}badge-primary{{else}}badge-secondary{{end}}">
+                    {{if eq .CurrentPhase "before_open"}}Before Registrations Open
+                    {{else if eq .CurrentPhase "open"}}Registrations Open
+                    {{else if eq .CurrentPhase "prep"}}Prep for Show
+                    {{else if eq .CurrentPhase "show_day"}}Show Day
+                    {{else}}After the Show
+                    {{end}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration Opens -->
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title text-lg">Registration Opens</h3>
+                <p class="text-sm font-mono">{{.RegistrationOpenDate}}</p>
+            </div>
+        </div>
+
+        <!-- Registration Closes -->
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title text-lg">Registration Closes</h3>
+                <p class="text-sm font-mono">{{.RegistrationClosingDate}}</p>
+            </div>
+        </div>
+
+        <!-- Show Date -->
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title text-lg">Show Date</h3>
+                <p class="text-sm">{{.ShowDate}}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="h-6 w-6 shrink-0 stroke-current">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Use the tabs above to access show management features</span>
+    </div>
+</div>
+{{end}}
+
+<!-- Before Registrations Tab -->
+{{define "before-registrations"}}
+<div class="space-y-6">
+    <h2 class="text-2xl font-bold">Before Registrations Open</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title">Setup Tasks</h3>
+                <ul class="list-disc list-inside space-y-2 text-sm">
+                    <li>Configure show dates and registration windows</li>
+                    <li>Set up categories and age groups</li>
+                    <li>Define volunteer roles</li>
+                    <li>Test registration flow</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title">Actions</h3>
+                <div class="space-y-2">
+                    <button class="btn btn-primary btn-block btn-sm">Manage Categories</button>
+                    <button class="btn btn-primary btn-block btn-sm">Manage Age Groups</button>
+                    <button class="btn btn-primary btn-block btn-sm">Configure Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
+<!-- After Registrations Close Tab -->
+{{define "after-registrations-close"}}
+<div class="space-y-6">
+    <h2 class="text-2xl font-bold">After Registrations Close</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title">Review & Adjust</h3>
+                <ul class="list-disc list-inside space-y-2 text-sm">
+                    <li>Review all entries submitted</li>
+                    <li>Check for incomplete registrations</li>
+                    <li>Identify volunteer commitments</li>
+                    <li>Plan hall layout</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title">Actions</h3>
+                <div class="space-y-2">
+                    <button class="btn btn-primary btn-block btn-sm">View All Entries</button>
+                    <button class="btn btn-primary btn-block btn-sm">View Volunteers</button>
+                    <button class="btn btn-primary btn-block btn-sm">Export Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
+<!-- Prep for Show Tab -->
+{{define "prep-for-show"}}
+<div class="space-y-6">
+    <h2 class="text-2xl font-bold">Prep for the Show</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="card bg-base-200 shadow hover:shadow-lg transition">
+            <div class="card-body">
+                <h3 class="card-title text-base">Entry Cards Report</h3>
+                <p class="text-sm text-base-content/70">Print entry cards for all exhibitors</p>
+                <div class="card-actions justify-end">
+                    <button class="btn btn-sm btn-primary">Generate</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 shadow hover:shadow-lg transition">
+            <div class="card-body">
+                <h3 class="card-title text-base">Exhibitor Age Group Summary</h3>
+                <p class="text-sm text-base-content/70">Summary of entries by age group</p>
+                <div class="card-actions justify-end">
+                    <button class="btn btn-sm btn-primary">Generate</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 shadow hover:shadow-lg transition">
+            <div class="card-body">
+                <h3 class="card-title text-base">Hall Planning Report</h3>
+                <p class="text-sm text-base-content/70">Layout and placement guide</p>
+                <div class="card-actions justify-end">
+                    <button class="btn btn-sm btn-primary">Generate</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 shadow hover:shadow-lg transition">
+            <div class="card-body">
+                <h3 class="card-title text-base">Pre-Show Stats Report</h3>
+                <p class="text-sm text-base-content/70">Overview statistics and metrics</p>
+                <div class="card-actions justify-end">
+                    <button class="btn btn-sm btn-primary">Generate</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 shadow hover:shadow-lg transition">
+            <div class="card-body">
+                <h3 class="card-title text-base">Check Table Cards</h3>
+                <p class="text-sm text-base-content/70">Verify all table card information</p>
+                <div class="card-actions justify-end">
+                    <button class="btn btn-sm btn-primary">Check</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
+<!-- On the Day Tab -->
+{{define "on-the-day"}}
+<div class="space-y-6">
+    <h2 class="text-2xl font-bold">On the Day</h2>
+
+    <div class="alert alert-warning">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+        </svg>
+        <span>Show is today! Stay organised and in touch with the team.</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title">Quick Links</h3>
+                <div class="space-y-2">
+                    <button class="btn btn-primary btn-block btn-sm">View Entry List</button>
+                    <button class="btn btn-primary btn-block btn-sm">Check Volunteer Schedule</button>
+                    <button class="btn btn-primary btn-block btn-sm">Emergency Contacts</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title">Updates</h3>
+                <p class="text-sm text-base-content/70">No updates yet</p>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
+<!-- After the Show Tab -->
+{{define "after-the-show"}}
+<div class="space-y-6">
+    <h2 class="text-2xl font-bold">After the Show</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title">Post-Show Tasks</h3>
+                <ul class="list-disc list-inside space-y-2 text-sm">
+                    <li>Archive show data</li>
+                    <li>Generate final reports</li>
+                    <li>Send thank you communications</li>
+                    <li>Plan for next year</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title">Actions</h3>
+                <div class="space-y-2">
+                    <button class="btn btn-primary btn-block btn-sm">Download Final Report</button>
+                    <button class="btn btn-primary btn-block btn-sm">Archive Records</button>
+                    <button class="btn btn-primary btn-block btn-sm">Feedback Summary</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
