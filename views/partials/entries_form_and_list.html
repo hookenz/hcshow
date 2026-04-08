@@ -8,13 +8,14 @@
         <span>Birth date not set. Cannot determine eligible categories.</span>
     </div>
 {{else}}
+    {{if .RenderForm}}
     <div class="space-y-4">
         <!-- Add Entry Form -->
         <div>
             <h4 class="font-semibold text-sm mb-2">Add an Entry</h4>
             <form hx-post="/exhibitors/{{.ExhibitorID}}/entries"
                   hx-target="#entries-list"
-                  hx-swap="innerHTML"
+                  hx-swap="outerHTML"
                   hx-on::after-request="if(event.detail.successful) this.reset()"
                   class="flex gap-2 items-end">
 
@@ -64,6 +65,7 @@
                                     <span class="badge badge-sm">{{.Status}}</span>
                                 </td>
                                 <td class="text-xs">
+                                    {{if .SummaryFormRequired}}
                                     <button
                                         class="btn btn-ghost btn-xs"
                                         hx-get="/exhibitors/{{.ExhibitorID}}/entries/summary_form"
@@ -71,13 +73,14 @@
                                         hx-on::after-request="document.getElementById('summary-form').showModal()">
                                         View form
                                     </button>
+                                    {{end}}
                                 </td>
                                 <td class="text-right">
                                     <button type="button"
                                             class="btn btn-ghost btn-xs text-error"
                                             hx-delete="/exhibitors/{{.ExhibitorID}}/entries/{{.EntryID}}"
                                             hx-target="#entries-list"
-                                            hx-swap="innerHTML"
+                                            hx-swap="outerHTML"
                                             title="Remove entry">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <polyline points="3 6 5 6 21 6"></polyline>
@@ -131,5 +134,64 @@
 
     </div>
     </dialog>
+    {{else}}
+    <div id="entries-list">
+        <h4 class="font-semibold text-sm mb-2">Entries</h4>
+        {{if .Entries}}
+            <div class="overflow-x-auto">
+                <table class="table table-sm table-zebra">
+                    <thead>
+                        <tr class="border-base-300">
+                            <th class="text-xs">Category</th>
+                            <th class="text-xs">Section</th>
+                            <th class="text-xs">Code</th>
+                            <th class="text-xs">Status</th>
+                            <th class="text-xs">Entry form</th>
+                            <th class="text-xs text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .Entries}}
+                        <tr class="border-base-300">
+                            <td class="text-sm font-medium">{{.CategoryName}}</td>
+                            <td class="text-sm text-base-content/70">{{.SectionName}}</td>
+                            <td class="text-xs text-base-content/50 font-mono">{{if .ShortCode}}{{.ShortCode}}{{else}}—{{end}}</td>
+                            <td class="text-xs">
+                                <span class="badge badge-sm">{{.Status}}</span>
+                            </td>
+                            <td class="text-xs">
+                                {{if .SummaryFormRequired}}
+                                <button
+                                    class="btn btn-ghost btn-xs"
+                                    hx-get="/exhibitors/{{.ExhibitorID}}/entries/summary_form"
+                                    hx-target="#summary-form-content"
+                                    hx-on::after-request="document.getElementById('summary-form').showModal()">
+                                    View form
+                                </button>
+                                {{end}}
+                            </td>
+                            <td class="text-right">
+                                <button type="button"
+                                        class="btn btn-ghost btn-xs text-error"
+                                        hx-delete="/exhibitors/{{.ExhibitorID}}/entries/{{.EntryID}}"
+                                        hx-target="#entries-list"
+                                        hx-swap="innerHTML"
+                                        title="Remove entry">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        {{else}}
+            <p class="text-xs text-base-content/40 italic py-2">No entries yet. Add one above to get started.</p>
+        {{end}}
+    </div>
+    {{end}}
 {{end}}
 

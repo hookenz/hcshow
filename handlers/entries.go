@@ -31,17 +31,19 @@ type EntriesPageData struct {
 	AgeGroupID   string
 	Categories   []CategoryOption
 	Entries      []EntryRow
+	RenderForm   bool
 	NoAgeGroup   bool
 	Error        string
 }
 
 type EntryRow struct {
-	EntryID      string
-	ExhibitorID  string
-	CategoryName string
-	SectionName  string
-	ShortCode    string
-	Status       string
+	EntryID             string
+	ExhibitorID         string
+	CategoryName        string
+	SectionName         string
+	ShortCode           string
+	Status              string
+	SummaryFormRequired bool
 }
 
 func ShowEntries(app *pocketbase.PocketBase, registry *template.Registry) func(*core.RequestEvent) error {
@@ -69,6 +71,7 @@ func ShowEntriesPartial(app *pocketbase.PocketBase, registry *template.Registry)
 		if err != nil {
 			return e.InternalServerError("", err)
 		}
+		data.RenderForm = true
 
 		html, err := registry.LoadFiles(
 			"views/partials/entries_form_and_list.html",
@@ -134,9 +137,10 @@ func CreateEntry(app *pocketbase.PocketBase, registry *template.Registry) func(*
 		}
 
 		html, err := registry.LoadFiles(
-			"views/partials/entries_list.html",
+			"views/partials/entries_form_and_list.html",
 		).Render(map[string]any{
-			"Entries": entries,
+			"Entries":    entries,
+			"RenderForm": false,
 		})
 		if err != nil {
 			return e.InternalServerError("", err)
@@ -163,9 +167,10 @@ func ListEntries(app *pocketbase.PocketBase, registry *template.Registry) func(*
 		}
 
 		html, err := registry.LoadFiles(
-			"views/partials/entries_list.html",
+			"views/partials/entries_form_and_list.html",
 		).Render(map[string]any{
-			"Entries": rows,
+			"Entries":    rows,
+			"RenderForm": false,
 		})
 		if err != nil {
 			return e.InternalServerError("", err)
@@ -204,9 +209,10 @@ func DeleteEntry(app *pocketbase.PocketBase, registry *template.Registry) func(*
 		}
 
 		html, err := registry.LoadFiles(
-			"views/partials/entries_list.html",
+			"views/partials/entries_form_and_list.html",
 		).Render(map[string]any{
-			"Entries": rows,
+			"Entries":    rows,
+			"RenderForm": false,
 		})
 		if err != nil {
 			return e.InternalServerError("", err)
@@ -390,12 +396,13 @@ func fetchEntryRows(app *pocketbase.PocketBase, exhibitorID string) ([]EntryRow,
 			sectionName = section.GetString("name")
 		}
 		rows = append(rows, EntryRow{
-			EntryID:      entry.Id,
-			ExhibitorID:  exhibitorID,
-			CategoryName: cat.GetString("name"),
-			SectionName:  sectionName,
-			ShortCode:    cat.GetString("short_code"),
-			Status:       entry.GetString("status"),
+			EntryID:             entry.Id,
+			ExhibitorID:         exhibitorID,
+			CategoryName:        cat.GetString("name"),
+			SectionName:         sectionName,
+			ShortCode:           cat.GetString("short_code"),
+			Status:              entry.GetString("status"),
+			SummaryFormRequired: cat.GetBool("summary_form_required"),
 		})
 	}
 	return rows, nil
