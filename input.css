@@ -16,7 +16,7 @@
 
   /* Hide all UI except the modal content */
   body * {
-    visibility: hidden;
+    visibility: none;
   }
 
   #summary-form,

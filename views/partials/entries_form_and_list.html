@@ -101,12 +101,27 @@
 
         <!-- Close button top-right -->
         <form method="dialog">
-        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         </form>
 
-        <!-- Toolbar (screen only) -->
         <div class="flex justify-start mb-4 print:hidden w-full">
-        <button class="btn btn-sm" onclick="window.print()">Print</button>
+            <!-- Print button -->
+            <button class="btn btn-sm join-item" onclick="window.print()">Print</button>
+
+            <!-- Dropdown container -->
+            <div class="dropdown dropdown-start relative">
+                <!-- Dropdown button: chevron only -->
+                <label tabindex="0" class="btn btn-sm join-item cursor-pointer">
+                <svg class="h-3 w-3 stroke-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+                </label>
+
+                <!-- Dropdown menu -->
+                <ul tabindex="0" class="dropdown-content menu w-52 rounded-box bg-base-100 shadow-sm mt-1">
+                <li><a href="#">Download PDF</a></li>
+                </ul>
+            </div>
         </div>
 
         <!-- Modal content -->
