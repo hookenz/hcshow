@@ -50,6 +50,7 @@
                                 <th class="text-xs">Section</th>
                                 <th class="text-xs">Code</th>
                                 <th class="text-xs">Status</th>
+                                <th class="text-xs">Entry form</th>
                                 <th class="text-xs text-right">Action</th>
                             </tr>
                         </thead>
@@ -61,6 +62,15 @@
                                 <td class="text-xs text-base-content/50 font-mono">{{if .ShortCode}}{{.ShortCode}}{{else}}—{{end}}</td>
                                 <td class="text-xs">
                                     <span class="badge badge-sm">{{.Status}}</span>
+                                </td>
+                                <td class="text-xs">
+                                    <button
+                                        class="btn btn-ghost btn-xs"
+                                        hx-get="/exhibitors/{{.ExhibitorID}}/entries/summary_form"
+                                        hx-target="#summary-form-content"
+                                        hx-on::after-request="document.getElementById('summary-form').showModal()">
+                                        View form
+                                    </button>
                                 </td>
                                 <td class="text-right">
                                     <button type="button"
@@ -85,5 +95,26 @@
             {{end}}
         </div>
     </div>
+
+    <dialog id="summary-form" class="modal">
+    <div class="modal-box w-11/12 max-w-5xl relative p-6 flex flex-col items-center">
+
+        <!-- Close button top-right -->
+        <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        </form>
+
+        <!-- Toolbar (screen only) -->
+        <div class="flex justify-start mb-4 print:hidden w-full">
+        <button class="btn btn-sm" onclick="window.print()">Print</button>
+        </div>
+
+        <!-- Modal content -->
+        <div id="summary-form-content" class="print-page w-full max-w-2xl">
+        <!-- htmx will insert the form content here -->
+        </div>
+
+    </div>
+    </dialog>
 {{end}}
 

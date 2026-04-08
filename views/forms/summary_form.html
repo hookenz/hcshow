@@ -1,0 +1,113 @@
+<div class="w-full max-w-2xl print-container">
+
+  <!-- Header -->
+  <header class="text-center mb-8 pb-6 border-b-2 border-stone-800">
+    <p class="text-xs tracking-widest uppercase text-stone-500 mb-1 font-normal">Manawatu Home Educators</p>
+    <h1 class="text-4xl font-bold text-stone-900 leading-tight mb-1">Home and Country Show</h1>
+    <p class="text-xs tracking-widest uppercase text-stone-400">Summary Form</p>
+  </header>
+
+  <!-- Form -->
+  <div class="flex flex-col gap-4">
+
+    <!-- Entry number + age group -->
+    <div class="grid grid-cols-2 gap-4">
+      <div class="flex flex-col gap-1.5 field-group">
+        <label for="entry-number" class="text-xs tracking-wider uppercase text-stone-500 font-semibold">
+          Exhibitor's Entry Number
+        </label>
+        <input
+          type="text"
+          id="entry-number"
+          placeholder="e.g. A-042"
+          value="{{.EntryNumber}}"
+          class="bg-transparent border-0 border-b border-stone-300 focus:border-stone-800 outline-none text-stone-900 placeholder:text-stone-300 placeholder:italic transition-colors text-sm"
+        />
+      </div>
+      <div class="flex flex-col gap-1.5 field-group">
+        <label for="age-group" class="text-xs tracking-wider uppercase text-stone-500 font-semibold">
+          Exhibitor's Age Group
+        </label>
+        <input
+          type="text"
+          id="age-group"
+          placeholder="e.g. 8–10 years"
+          value="{{.AgeGroupName}}"
+          class="bg-transparent border-0 border-b border-stone-300 focus:border-stone-800 outline-none text-stone-900 placeholder:text-stone-300 placeholder:italic transition-colors text-sm"
+        />
+      </div>
+    </div>
+
+    <!-- Entry name -->
+    <div class="flex flex-col gap-1 field-group">
+      <label for="entry-name" class="text-xs tracking-wider uppercase text-stone-500 font-semibold">
+        Entry Name / Description
+      </label>
+      <textarea
+        id="entry-name"
+        rows="2"
+        placeholder="Describe your entry…"
+        class="bg-stone-50 border border-stone-300 rounded focus:border-stone-700 focus:outline-none pt-1.5 px-3 text-stone-900 placeholder:text-stone-300 placeholder:italic resize-none transition-colors text-sm leading-relaxed"
+      ></textarea>
+    </div>
+
+    <!-- Materials -->
+    <div class="flex flex-col gap-1 field-group">
+      <label for="materials" class="text-xs tracking-wider uppercase text-stone-500 font-semibold">
+        Materials Used
+      </label>
+      <textarea
+        id="materials"
+        rows="4"
+        placeholder="List the materials you used…"
+        class="bg-stone-50 border border-stone-300 rounded focus:border-stone-700 focus:outline-none pt-1.5 px-3 text-stone-900 placeholder:text-stone-300 placeholder:italic resize-none transition-colors text-sm leading-relaxed"
+      ></textarea>
+    </div>
+
+    <!-- Equipment -->
+    <div class="flex flex-col gap-1 field-group">
+      <label for="equipment" class="text-xs tracking-wider uppercase text-stone-500 font-semibold">
+        Equipment Used
+      </label>
+      <textarea
+        id="equipment"
+        rows="4"
+        placeholder="List any equipment or tools…"
+        class="bg-stone-50 border border-stone-300 rounded focus:border-stone-700 focus:outline-none pt-1.5 px-3 text-stone-900 placeholder:text-stone-300 placeholder:italic resize-none transition-colors text-sm leading-relaxed"
+      ></textarea>
+    </div>
+
+    <!-- Method -->
+    <div class="flex flex-col gap-1 field-group">
+      <label for="method" class="text-xs tracking-wider uppercase text-stone-500 font-semibold">
+        Method
+      </label>
+      <textarea
+        id="method"
+        rows="12"
+        placeholder="Describe your process and method…"
+        class="bg-stone-50 border border-stone-300 rounded focus:border-stone-700 focus:outline-none pt-1.5 px-3 text-stone-900 placeholder:text-stone-300 placeholder:italic resize-none transition-colors text-sm leading-relaxed"
+      ></textarea>
+    </div>
+
+    <!-- Adult input -->
+    <div class="flex flex-col gap-1 field-group">
+      <label for="adult-input" class="text-xs tracking-wider uppercase text-stone-500 font-semibold">
+        Details of Adult Input <span class="normal-case tracking-normal font-normal text-stone-400">(if any)</span>
+      </label>
+      <textarea
+        id="adult-input"
+        rows="8"
+        placeholder="Describe any help you received from an adult…"
+        class="bg-stone-50 border border-stone-300 rounded focus:border-stone-700 focus:outline-none pt-1.5 px-3 text-stone-900 placeholder:text-stone-300 placeholder:italic resize-none transition-colors text-sm leading-relaxed"
+      ></textarea>
+    </div>
+
+  </div>
+
+  <!-- Footer note -->
+  <p class="mt-5 pt-1 border-t border-stone-200 text-xs text-stone-400 italic leading-relaxed">
+    Attach additional information to this form, including plans, patterns, templates, etc. as appropriate.
+  </p>
+
+</div>

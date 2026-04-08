@@ -226,6 +226,9 @@ func buildEntriesData(app *pocketbase.PocketBase, e *core.RequestEvent) (*Entrie
 	if exhibitor.GetString("user") != e.Auth.Id {
 		return nil, fmt.Errorf("forbidden")
 	}
+	if exhibitor.GetString("user") != e.Auth.Id {
+		return nil, fmt.Errorf("forbidden")
+	}
 
 	data := &EntriesPageData{
 		ExhibitorID: exhibitorID,
@@ -396,4 +399,26 @@ func fetchEntryRows(app *pocketbase.PocketBase, exhibitorID string) ([]EntryRow,
 		})
 	}
 	return rows, nil
+}
+
+func ShowEntrySummaryForm(app *pocketbase.PocketBase, registry *template.Registry) func(*core.RequestEvent) error {
+	return func(e *core.RequestEvent) error {
+		exhibitorID := e.Request.PathValue("exhibitor_id")
+
+		data, err := buildEntriesData(app, e)
+		if err != nil {
+			return e.InternalServerError("", err)
+		}
+
+		html, err := registry.LoadFiles(
+			"views/forms/summary_form.html",
+		).Render(map[string]any{
+			"EntryNumber":  exhibitorID,
+			"AgeGroupName": data.AgeGroupName,
+		})
+		if err != nil {
+			return e.InternalServerError("", err)
+		}
+		return e.HTML(http.StatusOK, html)
+	}
 }

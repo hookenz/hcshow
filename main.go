@@ -47,6 +47,7 @@ func main() {
 		protected.GET("/exhibitors/{id}/entries", handlers.ShowEntries(app, registry))
 		protected.POST("/exhibitors/{id}/entries", handlers.CreateEntry(app, registry))
 		protected.DELETE("/exhibitors/{id}/entries/{entryid}", handlers.DeleteEntry(app, registry))
+		protected.GET("/exhibitors/{id}/entries/summary_form", handlers.ShowEntrySummaryForm(app, registry))
 
 		// Helper signup routes (add to protected group)
 		protected.GET("/helper-signup", handlers.ShowHelperForm(app, registry))

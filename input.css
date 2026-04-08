@@ -5,3 +5,69 @@
 @source "./views/**/*.html";
 
 @plugin "./daisyui.mjs";
+
+
+@page {
+  size: A4;
+  margin: 10mm; /* tight top/bottom/left/right margins */
+}
+
+@media print {
+
+  /* Hide all UI except the modal content */
+  body * {
+    visibility: hidden;
+  }
+
+  #summary-form,
+  #summary-form * {
+    visibility: visible;
+  }
+
+  /* Position modal content flush to top-left of page */
+  #summary-form {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 210mm; /* full A4 width */
+  }
+
+  /* Modal box styling for print */
+  #summary-form .modal-box {
+    max-width: none !important;
+    width: 100%;
+    padding: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: transparent !important;
+  }
+
+  /* Print page content fills the printable area */
+  .print-page {
+    width: 190mm;      /* 210mm minus 10mm margins each side */
+    min-height: 277mm; /* 297mm minus 10mm top/bottom margins */
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Make inner content stretch full width */
+  .print-page > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Hide buttons and modal chrome completely */
+  .print-hidden,
+  .btn {
+    display: none !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+}
