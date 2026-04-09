@@ -34,6 +34,11 @@
                 {{template "after-registrations-close" .}}
             </div>
 
+            <input type="radio" name="admin_tabs" role="tab" class="tab" aria-label="Before the Show" />
+            <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-b-lg p-6">
+                {{template "before-the-show" .}}
+            </div>
+
             <input type="radio" name="admin_tabs" role="tab" class="tab" aria-label="Prep for Show" />
             <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-b-lg p-6">
                 {{template "prep-for-show" .}}
@@ -173,10 +178,43 @@
 </div>
 {{end}}
 
+<!-- Before the Show Tab -->
+{{define "before-the-show"}}
+<div class="space-y-6">
+    <h2 class="text-2xl font-bold">Before the Show</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title">Review & Adjust</h3>
+                <ul class="list-disc list-inside space-y-2 text-sm">
+                    <li>Review all entries submitted</li>
+                    <li>Check for incomplete registrations</li>
+                    <li>Identify volunteer commitments</li>
+                    <li>Plan hall layout</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 shadow">
+            <div class="card-body">
+                <h3 class="card-title">Actions</h3>
+                <div class="space-y-2">
+                    <button class="btn btn-primary btn-block btn-sm">Prepare Pet Entry List for the Judge</button>
+                    <button class="btn btn-primary btn-block btn-sm">Prepare Parent Help &amp; Pet People Checklists</button>
+                    <button class="btn btn-primary btn-block btn-sm">Prepare Wheels Report for Prizes</button>
+                    <button class="btn btn-primary btn-block btn-sm">Prepare Certificate Lists for Great Effort &amp; Wheels</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
 <!-- Prep for Show Tab -->
 {{define "prep-for-show"}}
 <div class="space-y-6">
-    <h2 class="text-2xl font-bold">Prep for the Show</h2>
+    <h2 class="text-2xl font-bold">Show Preparation</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div class="card bg-base-200 shadow hover:shadow-lg transition">
