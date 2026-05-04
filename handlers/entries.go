@@ -203,21 +203,21 @@ func DeleteEntry(app *pocketbase.PocketBase, registry *template.Registry) func(*
 			return e.InternalServerError("", err)
 		}
 
-		rows, err := fetchEntryRows(app, exhibitorID)
-		if err != nil {
-			return e.InternalServerError("", err)
-		}
+		// rows, err := fetchEntryRows(app, exhibitorID)
+		// if err != nil {
+		// 	return e.InternalServerError("", err)
+		// }
 
-		html, err := registry.LoadFiles(
-			"views/partials/entries_form_and_list.html",
-		).Render(map[string]any{
-			"Entries":    rows,
-			"RenderForm": false,
-		})
+		// html, err := registry.LoadFiles(
+		// 	"views/partials/entries_form_and_list.html",
+		// ).Render(map[string]any{
+		// 	"Entries":    rows,
+		// 	"RenderForm": false,
+		// })
 		if err != nil {
 			return e.InternalServerError("", err)
 		}
-		return e.HTML(http.StatusOK, html)
+		return e.HTML(http.StatusNoContent, "")
 	}
 }
 

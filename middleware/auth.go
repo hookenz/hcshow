@@ -36,6 +36,10 @@ func RequireAdmin(app *pocketbase.PocketBase) func(*core.RequestEvent) error {
 			return err
 		}
 
+		if e.Auth == nil {
+			e.Redirect(307, "/")
+		}
+
 		// Check if user has admin role
 		role := e.Auth.GetString("role")
 		if role != "admin" {

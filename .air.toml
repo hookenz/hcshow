@@ -8,7 +8,7 @@ tmp_dir = "tmp"
 [build]
   args_bin = []
   bin = "hcshow"
-  cmd = "go build -o hcshow ."
+  cmd = "make"
   delay = 1000
   entrypoint = ["./hcshow", "--dev", "serve"]
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]

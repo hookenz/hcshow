@@ -60,7 +60,7 @@
             <div class="card-body">
                 <h3 class="font-semibold text-base mb-3">Add an Entry</h3>
                 <form hx-post="/exhibitors/{{.ExhibitorID}}/entries"
-                      hx-target="#entries-list"
+                      hx-target="#entries-list-{{.ExhibitorID}}"
                       hx-swap="outerHTML"
                       x-data="{ selected: '' }"
                       class="flex flex-col sm:flex-row gap-3">
@@ -105,7 +105,7 @@
         </div>
 
         <!-- Entries list -->
-        <div id="entries-list"
+        <div id="entries-list-{{.ExhibitorID}}"
              hx-get="/partials/entries/{{.ExhibitorID}}"
              hx-trigger="load"
              hx-target="this"

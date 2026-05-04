@@ -14,7 +14,7 @@
         <div>
             <h4 class="font-semibold text-sm mb-2">Add an Entry</h4>
             <form hx-post="/exhibitors/{{.ExhibitorID}}/entries"
-                  hx-target="#entries-list"
+                  hx-target="#entries-list-{{.ExhibitorID}}"
                   hx-swap="outerHTML"
                   hx-on::after-request="if(event.detail.successful) this.reset()"
                   class="flex gap-2 items-end">
@@ -40,7 +40,7 @@
         </div>
 
         <!-- Entries Table -->
-        <div id="entries-list">
+        <div id="entries-list-{{.ExhibitorID}}">
             <h4 class="font-semibold text-sm mb-2">Entries</h4>
             {{if .Entries}}
                 <div class="overflow-x-auto">
@@ -69,8 +69,8 @@
                                     <button
                                         class="btn btn-ghost btn-xs"
                                         hx-get="/exhibitors/{{.ExhibitorID}}/entries/summary_form"
-                                        hx-target="#summary-form-content"
-                                        hx-on::after-request="document.getElementById('summary-form').showModal()">
+                                        hx-target="#summary-form-content-{{.ExhibitorID}}"
+                                        hx-on::after-request="document.getElementById('summary-form-{{.ExhibitorID}}').showModal()">
                                         View form
                                     </button>
                                     {{end}}
@@ -79,7 +79,7 @@
                                     <button type="button"
                                             class="btn btn-ghost btn-xs text-error"
                                             hx-delete="/exhibitors/{{.ExhibitorID}}/entries/{{.EntryID}}"
-                                            hx-target="#entries-list"
+                                            hx-target="#entries-list-{{.ExhibitorID}}"
                                             hx-swap="outerHTML"
                                             title="Remove entry">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -99,7 +99,7 @@
         </div>
     </div>
 
-    <dialog id="summary-form" class="modal">
+    <dialog id="summary-form-{{.ExhibitorID}}" class="modal">
     <div class="modal-box w-11/12 max-w-5xl relative p-6 flex flex-col items-center">
 
         <!-- Close button top-right -->
@@ -128,14 +128,14 @@
         </div>
 
         <!-- Modal content -->
-        <div id="summary-form-content" class="print-page w-full max-w-2xl">
+        <div id="summary-form-content-{{.ExhibitorID}}" class="print-page w-full max-w-2xl">
         <!-- htmx will insert the form content here -->
         </div>
 
     </div>
     </dialog>
     {{else}}
-    <div id="entries-list">
+    <div id="entries-list-{{.ExhibitorID}}">
         <h4 class="font-semibold text-sm mb-2">Entries</h4>
         {{if .Entries}}
             <div class="overflow-x-auto">
@@ -150,7 +150,7 @@
                             <th class="text-xs text-right">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="entries-list-{{.ExhibitorID}}-tbody">
                         {{range .Entries}}
                         <tr class="border-base-300">
                             <td class="text-sm font-medium">{{.CategoryName}}</td>
@@ -164,8 +164,8 @@
                                 <button
                                     class="btn btn-ghost btn-xs"
                                     hx-get="/exhibitors/{{.ExhibitorID}}/entries/summary_form"
-                                    hx-target="#summary-form-content"
-                                    hx-on::after-request="document.getElementById('summary-form').showModal()">
+                                    hx-target="#summary-form-content-{{.ExhibitorID}}"
+                                    hx-on::after-request="document.getElementById('summary-form-{{.ExhibitorID}}').showModal()">
                                     View form
                                 </button>
                                 {{end}}
@@ -174,8 +174,8 @@
                                 <button type="button"
                                         class="btn btn-ghost btn-xs text-error"
                                         hx-delete="/exhibitors/{{.ExhibitorID}}/entries/{{.EntryID}}"
-                                        hx-target="#entries-list"
-                                        hx-swap="innerHTML"
+                                        hx-target="closest tr"
+                                        hx-swap="outerHTML"
                                         title="Remove entry">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="3 6 5 6 21 6"></polyline>

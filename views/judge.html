@@ -1,0 +1,41 @@
+{{define "title"}}Judge Card{{end}}
+
+{{define "body"}}
+<div class="navbar bg-base-100 shadow-sm px-4">
+    <div class="flex-1">
+        <a href="/" class="btn btn-ghost btn-sm gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back
+            </a>
+        </div>
+        <div class="flex-none">
+            <span class="text-xl font-bold text-primary">MyApp</span>
+        </div>
+        <div class="flex-none w-24"></div>
+    </div>
+
+    <!-- <div class="max-w-3xl mx-auto p-4 mt-6 flex flex-col gap-6"> -->
+    <div class="min-h-screen bg-base-200 flex items-center justify-center">
+        <div class="card bg-base-100 shadow-xl p-8 text-center max-w-sm">
+            
+            <h1 class="text-2xl font-bold mb-2">MHE Home & Country Show</h1>
+            <p class="text-base-content/60 mb-6">Open this address on your phone to enter results</p>
+
+            {{if .qrSVG}}
+            <div class="flex justify-center mb-4">
+            {{.qrSVG}}
+            </div>
+            {{end}}
+
+            <div class="font-mono text-lg font-bold">{{.judgeURL}}</div>
+
+            <button onclick="window.print()" class="btn btn-primary mt-8 w-full">
+            🖨 Print This Page
+            </button>
+
+        </div>
+    </div>
+</div>
+{{end}}

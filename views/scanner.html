@@ -1,0 +1,153 @@
+{{define "title"}}Judge Scanner{{end}}
+
+{{define "body"}}
+<div class="min-h-screen bg-base-200 flex flex-col items-center p-4">
+
+  <h1 class="text-2xl font-bold mt-4 mb-2">Scan Entry Card</h1>
+
+  <!-- Camera preview -->
+  <div class="relative w-full max-w-sm rounded-xl overflow-hidden shadow-lg bg-black">
+    <video id="video" class="w-full" autoplay playsinline muted></video>
+    <!-- Scan target guide -->
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+      <div class="w-48 h-48 border-4 border-primary rounded-lg opacity-70"></div>
+    </div>
+  </div>
+
+  <p id="status" class="text-sm text-base-content/60 mt-3">Point camera at a QR code...</p>
+
+  <!-- Result panel — hidden until scan -->
+  <div id="result-panel" class="hidden w-full max-w-sm mt-6">
+    
+    <div class="card bg-base-100 shadow p-4 mb-4">
+      <div class="text-sm text-base-content/60">Entry</div>
+      <div id="entry-id" class="text-xl font-bold font-mono"></div>
+      <div class="text-sm text-base-content/60 mt-1">Category</div>
+      <div id="entry-category" class="text-lg font-semibold"></div>
+    </div>
+
+    <p class="text-center font-semibold mb-3">Select Placing</p>
+
+    <div class="grid grid-cols-3 gap-3">
+      <button onclick="submitResult(1)" class="btn btn-lg bg-blue-500 hover:bg-blue-600 text-white border-none flex flex-col h-24">
+        <span class="text-2xl">🥇</span>
+        <span>First</span>
+      </button>
+      <button onclick="submitResult(2)" class="btn btn-lg bg-green-500 hover:bg-green-600 text-white border-none flex flex-col h-24">
+        <span class="text-2xl">🥈</span>
+        <span>Second</span>
+      </button>
+      <button onclick="submitResult(3)" class="btn btn-lg bg-yellow-400 hover:bg-yellow-500 text-white border-none flex flex-col h-24">
+        <span class="text-2xl">🥉</span>
+        <span>Third</span>
+      </button>
+    </div>
+
+    <button onclick="resetScanner()" class="btn btn-outline w-full mt-4">
+      ← Scan Another
+    </button>
+
+  </div>
+
+  <!-- Success toast -->
+  <div id="toast" class="hidden fixed bottom-8 left-1/2 -translate-x-1/2 bg-success text-success-content px-6 py-3 rounded-full shadow-lg font-semibold">
+    ✓ Result saved!
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+  const video = document.getElementById('video')
+  const status = document.getElementById('status')
+  const resultPanel = document.getElementById('result-panel')
+  const toast = document.getElementById('toast')
+
+  let scanning = true
+  let currentEntry = null
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+
+  // Start camera
+  navigator.mediaDevices.getUserMedia({ 
+    video: { facingMode: 'environment' } // rear camera on phones
+  }).then(stream => {
+    video.srcObject = stream
+    video.play()
+    requestAnimationFrame(scanFrame)
+  }).catch(err => {
+    status.textContent = 'Camera error: ' + err.message
+  })
+
+  function scanFrame() {
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      ctx.drawImage(video, 0, 0)
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const code = jsQR(imageData.data, imageData.width, imageData.height)
+
+      if (code && scanning) {
+        handleScan(code.data)
+      }
+    }
+
+    if (scanning) requestAnimationFrame(scanFrame)
+  }
+
+  function handleScan(data) {
+    // Expect format: MHE:entryId:Category Name
+    const parts = data.split(':')
+    if (parts.length < 3 || parts[0] !== 'MHE') {
+      status.textContent = 'Not a valid entry card — try again'
+      return
+    }
+
+    scanning = false
+    currentEntry = { id: parts[1], category: parts[2] }
+
+    document.getElementById('entry-id').textContent = parts[1]
+    document.getElementById('entry-category').textContent = parts[2]
+    resultPanel.classList.remove('hidden')
+    status.textContent = 'Entry scanned ✓'
+  }
+
+  async function submitResult(placing) {
+    if (!currentEntry) return
+
+    try {
+      const resp = await fetch('/api/collections/results/records', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          entry_id: currentEntry.id,
+          category: currentEntry.category,
+          placing: placing,
+        })
+      })
+
+      if (!resp.ok) throw new Error(await resp.text())
+
+      showToast()
+      setTimeout(resetScanner, 1500)
+
+    } catch (err) {
+      status.textContent = 'Error saving: ' + err.message
+    }
+  }
+
+  function resetScanner() {
+    currentEntry = null
+    scanning = true
+    resultPanel.classList.add('hidden')
+    status.textContent = 'Point camera at a QR code...'
+    requestAnimationFrame(scanFrame)
+  }
+
+  function showToast() {
+    toast.classList.remove('hidden')
+    setTimeout(() => toast.classList.add('hidden'), 1500)
+  }
+</script>
+{{end}}
