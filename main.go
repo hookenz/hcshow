@@ -218,16 +218,50 @@ func runImport(app *pocketbase.PocketBase, file string) {
 		headerIndex[key] = i
 	}
 
-	// --- Load categories (slug -> id) ---
+	// --- Load categories ---
 	catRecords, err := app.FindRecordsByFilter("category", "", "", 0, 0)
 	if err != nil {
 		panic(err)
 	}
 
-	categoryMap := map[string]string{}
+	// slug -> []category records
+	categoryMap := map[string][]*core.Record{}
+	catIdToSlug := map[string]string{}
+
 	for _, c := range catRecords {
 		slug := strings.ToLower(strings.TrimSpace(c.GetString("slug")))
-		categoryMap[slug] = c.Id
+		categoryMap[slug] = append(categoryMap[slug], c)
+		catIdToSlug[c.Id] = slug
+	}
+
+	// --- Load category_age_group ---
+	type CatAgeKey struct {
+		Slug       string
+		AgeGroupId string
+	}
+
+	catAgeMap := map[CatAgeKey]string{}
+
+	catAgeRecords, err := app.FindRecordsByFilter("category_age_group", "", "", 0, 0)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, r := range catAgeRecords {
+		catId := r.GetString("category")
+		ageGroupId := r.GetString("age_group")
+
+		slug, ok := catIdToSlug[catId]
+		if !ok {
+			continue
+		}
+
+		key := CatAgeKey{
+			Slug:       slug,
+			AgeGroupId: ageGroupId,
+		}
+
+		catAgeMap[key] = catId
 	}
 
 	// --- Load age groups ---
@@ -244,14 +278,11 @@ func runImport(app *pocketbase.PocketBase, file string) {
 
 	ageGroups := []AgeGroup{}
 	for _, r := range ageGroupRecords {
-		ag := AgeGroup{
+		ageGroups = append(ageGroups, AgeGroup{
 			Id:  r.Id,
 			Min: r.GetInt("min"),
 			Max: r.GetInt("max"),
-		}
-		ageGroups = append(ageGroups, ag)
-
-		fmt.Printf("ageGroup %+v\n", ag)
+		})
 	}
 
 	// --- Load show date ---
@@ -261,8 +292,6 @@ func runImport(app *pocketbase.PocketBase, file string) {
 	}
 
 	showDate := settings.GetDateTime("show_date").Time()
-
-	fmt.Printf("Show date: %v\n", showDate.String())
 
 	// --- Helpers ---
 	ageAt := func(date time.Time, birth time.Time) int {
@@ -328,15 +357,26 @@ func runImport(app *pocketbase.PocketBase, file string) {
 		if age < 0 {
 			fmt.Printf("Skipping future DOB for %s %s\n", first, last)
 			continue
-		} else {
-			fmt.Println("age:", age)
 		}
 
 		ageGroupId := findAgeGroup(age)
 		if ageGroupId == "" {
 			fmt.Printf("No age group for age %d (%s %s)\n", age, first, last)
-		} else {
-			fmt.Println("Age group: %s", ageGroupId)
+		}
+
+		// --- Extract pet extra_data ---
+		petType := strings.TrimSpace(data["pettype"])
+		petName := strings.TrimSpace(data["petname"])
+
+		var extraData map[string]any
+		if petType != "" || petName != "" {
+			extraData = map[string]any{}
+			if petType != "" {
+				extraData["type"] = petType
+			}
+			if petName != "" {
+				extraData["name"] = petName
+			}
 		}
 
 		// --- Upsert exhibitor ---
@@ -359,8 +399,8 @@ func runImport(app *pocketbase.PocketBase, file string) {
 			exhibitor.Set("first_name", first)
 			exhibitor.Set("last_name", last)
 			exhibitor.Set("birth_date", birthTime.Format("2006-01-02"))
-			exhibitor.Set("phone", data["phonenumber"])
-			exhibitor.Set("email", data["emailaddress"])
+			exhibitor.Set("phone", strings.ReplaceAll(data["phonenumber"], " ", ""))
+			exhibitor.Set("email", strings.ReplaceAll(data["emailaddress"], " ", ""))
 
 			if err := app.Save(exhibitor); err != nil {
 				fmt.Println("Failed to save exhibitor:", err)
@@ -369,7 +409,7 @@ func runImport(app *pocketbase.PocketBase, file string) {
 		}
 
 		// --- Create exhibits ---
-		for slug, categoryId := range categoryMap {
+		for slug, categories := range categoryMap {
 
 			idx, ok := headerIndex[slug]
 			if !ok {
@@ -381,36 +421,65 @@ func runImport(app *pocketbase.PocketBase, file string) {
 				continue
 			}
 
+			var effectiveCategoryId string
+
+			if slug == "pet" {
+				if ageGroupId == "" {
+					fmt.Printf("Missing age group for pet: %s %s\n", first, last)
+					continue
+				}
+
+				key := CatAgeKey{
+					Slug:       slug,
+					AgeGroupId: ageGroupId,
+				}
+
+				var ok bool
+				effectiveCategoryId, ok = catAgeMap[key]
+				if !ok {
+					fmt.Printf("No category for slug=pet ageGroup=%s\n", ageGroupId)
+					continue
+				}
+			} else {
+				effectiveCategoryId = categories[0].Id
+			}
+
 			existingExhibit, _ := app.FindFirstRecordByFilter(
 				"exhibits",
 				"exhibitor = {:ex} && category = {:cat}",
 				dbx.Params{
 					"ex":  exhibitor.Id,
-					"cat": categoryId,
+					"cat": effectiveCategoryId,
 				},
 			)
 
 			if existingExhibit != nil {
-				// only update age_group if it's not set
+
 				if existingExhibit.GetString("age_group") == "" && ageGroupId != "" {
 					existingExhibit.Set("age_group", ageGroupId)
+				}
 
-					if err := app.Save(existingExhibit); err != nil {
-						fmt.Printf("Failed to update exhibit for \"%s %s\": %v\n", first, last, err)
-						continue
-					}
+				if slug == "pet" && extraData != nil {
+					existingExhibit.Set("extra_data", extraData)
+				}
+
+				if err := app.Save(existingExhibit); err != nil {
+					fmt.Printf("Failed to update exhibit for \"%s %s\": %v\n", first, last, err)
 				}
 
 				continue
 			}
 
-			// create new record
 			exhibit := core.NewRecord(exhibitsCol)
 			exhibit.Set("exhibitor", exhibitor.Id)
-			exhibit.Set("category", categoryId)
+			exhibit.Set("category", effectiveCategoryId)
 
 			if ageGroupId != "" {
 				exhibit.Set("age_group", ageGroupId)
+			}
+
+			if slug == "pet" && extraData != nil {
+				exhibit.Set("extra_data", extraData)
 			}
 
 			if err := app.Save(exhibit); err != nil {
