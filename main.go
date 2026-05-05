@@ -316,6 +316,7 @@ func runImport(app *pocketbase.PocketBase, file string) {
 	}
 
 	// --- Load collections ---
+	usersCol, _ := app.FindCollectionByNameOrId("users")
 	exhibitorCol, _ := app.FindCollectionByNameOrId("exhibitor")
 	exhibitsCol, _ := app.FindCollectionByNameOrId("exhibits")
 
@@ -336,6 +337,33 @@ func runImport(app *pocketbase.PocketBase, file string) {
 		data := map[string]string{}
 		for i, h := range headers {
 			data[strings.ToLower(strings.TrimSpace(h))] = row[i]
+		}
+
+		email := strings.ToLower(strings.TrimSpace(data["emailaddress"]))
+		phone := strings.ReplaceAll(data["phone"], " ", "")
+
+		// --- Upsert User ---
+		existingUser, err := app.FindFirstRecordByFilter(
+			"users",
+			"email = {:email}",
+			dbx.Params{"email": email},
+		)
+
+		var user *core.Record
+
+		if existingUser != nil {
+			user = existingUser
+		} else {
+			user = core.NewRecord(usersCol)
+			user.Set("email", email)
+			user.Set("password", "password")
+			user.Set("phone_number", phone)
+			user.Set("role", "user")
+
+			if err := app.Save(user); err != nil {
+				fmt.Println("Failed to save user:", err)
+				user = nil
+			}
 		}
 
 		first := strings.TrimSpace(data["childfirstname"])
@@ -399,8 +427,10 @@ func runImport(app *pocketbase.PocketBase, file string) {
 			exhibitor.Set("first_name", first)
 			exhibitor.Set("last_name", last)
 			exhibitor.Set("birth_date", birthTime.Format("2006-01-02"))
-			exhibitor.Set("phone", strings.ReplaceAll(data["phonenumber"], " ", ""))
-			exhibitor.Set("email", strings.ReplaceAll(data["emailaddress"], " ", ""))
+
+			if user != nil {
+				exhibitor.Set("user", user.Id)
+			}
 
 			if err := app.Save(exhibitor); err != nil {
 				fmt.Println("Failed to save exhibitor:", err)
