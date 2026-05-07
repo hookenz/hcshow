@@ -327,13 +327,13 @@ func PrintHallPlanningReport(app *pocketbase.PocketBase, registry *template.Regi
 				)
 
 				// Column headers
-				m.AddRow(8,
-					text.NewCol(8, "    Age Group", props.Text{Style: fontstyle.Bold}),
-					text.NewCol(4, "Count", props.Text{
-						Style: fontstyle.Bold,
-						Align: align.Right,
-					}),
-				)
+				// m.AddRow(8,
+				// 	text.NewCol(8, "    Age Group", props.Text{Style: fontstyle.Bold}),
+				// 	text.NewCol(4, "Count", props.Text{
+				// 		Style: fontstyle.Bold,
+				// 		Align: align.Right,
+				// 	}),
+				// )
 
 				m.AddRow(1, line.NewCol(12))
 
@@ -375,7 +375,8 @@ func PrintHallPlanningReport(app *pocketbase.PocketBase, registry *template.Regi
 				),
 			)
 
-			m.AddRow(5, line.NewCol(12))
+			// m.AddRow(5, line.NewCol(12))
+			m.AddRow(5)
 		}
 
 		// Grand total
